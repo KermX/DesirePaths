@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Horse;
@@ -37,7 +38,7 @@ public final class DesirePaths extends JavaPlugin {
     private void playerHandler(Player player){
         if (player.getGameMode() != GameMode.SURVIVAL)
             return;
-        blockBelowHandler(player.getLocation().subtract(0, 1, 0).getBlock(), player);
+        blockBelowHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player);
         blockAtFeetHandler(player.getLocation().getBlock(),player);
     }
     private void blockAtFeetHandler(Block block, Player player){
@@ -146,7 +147,7 @@ public final class DesirePaths extends JavaPlugin {
             case RIDING_PIG:
                 return 30.0F;
             case IS_SPRINTING:
-                return 10.0F;
+                return 12.5F;
             default:
                 return 0.0F;
         }
