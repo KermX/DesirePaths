@@ -12,11 +12,8 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
-
-import static java.lang.Math.abs;
 
 public final class DesirePaths extends JavaPlugin {
     private static final Random random = new Random();
@@ -44,9 +41,9 @@ public final class DesirePaths extends JavaPlugin {
     private void blockAtFeetHandler(Block block, Player player){
         if (player.isSneaking() || player.isSwimming())
             return;
-        if (random.nextInt(100) < abs(getChance(player)) - 3 && block.getType() == Material.FARMLAND)
+        if (random.nextInt(100) < getChance(player) - 3 && block.getType() == Material.FARMLAND)
             block.setType(Material.MUD);
-        if (random.nextInt(100) < abs(getChance(player)) + 30 || player.isSprinting())
+        if (random.nextInt(100) < getChance(player) + 30 || player.isSprinting())
             switch (block.getType()){
                 case SNOW:
                 case GRASS:
@@ -57,8 +54,7 @@ public final class DesirePaths extends JavaPlugin {
                     block.setType(Material.GRASS);
                     break;
                 default:
-                    return;
-        }
+            }
     }
     private void globalSwitcher(Block block){
         switch (block.getType()){
@@ -86,13 +82,14 @@ public final class DesirePaths extends JavaPlugin {
                 block.setType(Material.LAVA);
                 break;
             default:
-                return;
         }
     }
     private void blockBelowHandler(Block block, Player player){
         if (player.isSneaking() || player.isSwimming())
             return;
-        if (random.nextInt(100) < abs(getChance(player)))
+        if (!player.isSprinting() && random.nextInt(100) < getChance(player))
+            globalSwitcher(block);
+        if (player.isSprinting() && random.nextInt(100) < 12.5 + getChance(player))
             globalSwitcher(block);
     }
 
@@ -100,10 +97,6 @@ public final class DesirePaths extends JavaPlugin {
         ItemStack boots = player.getInventory().getBoots();
         if (boots == null)
             return modifierType.NO_BOOTS;
-        if (player.hasPotionEffect(PotionEffectType.SLOW_FALLING))
-            return modifierType.SLOW_FALLING;
-        if (player.isSprinting())
-            return modifierType.IS_SPRINTING;
         if (player.getVehicle() instanceof Horse)
             return modifierType.RIDING_HORSE;
         if (player.getVehicle() instanceof Boat)
@@ -126,30 +119,26 @@ public final class DesirePaths extends JavaPlugin {
         return modifierType.HAS_BOOTS;
     }
     private enum modifierType{
-        NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, SLOW_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG, IS_SPRINTING
+        NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG
     }
-    public static float getChance(Player player){
+    public static int getChance(Player player){
         switch (getModifier(player)){
             case NO_BOOTS:
-                return 3.0F;
+                return 3;
             case LEATHER_BOOTS:
-                return 11.0F;
+                return 11;
             case HAS_BOOTS:
-                return 20.0F;
+                return 20;
             case FEATHER_FALLING:
-                return -10.0F;
-            case SLOW_FALLING:
-                return -5.5F;
+                return 10;
             case RIDING_HORSE:
-                return 37.5F;
+                return 37;
             case RIDING_BOAT:
-                return 99.0F;
+                return 99;
             case RIDING_PIG:
-                return 30.0F;
-            case IS_SPRINTING:
-                return 12.5F;
+                return 30;
             default:
-                return 0.0F;
+                return 0;
         }
     }
 
