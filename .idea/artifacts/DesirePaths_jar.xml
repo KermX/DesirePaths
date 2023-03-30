@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DesirePaths:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DesirePaths_jar</output-path>
+    <root id="archive" name="DesirePaths.jar">
+      <element id="module-output" name="DesirePaths" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/plugin.yml" />
+    </root>
+  </artifact>
+</component>
