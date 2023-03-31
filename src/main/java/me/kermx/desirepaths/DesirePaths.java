@@ -89,7 +89,7 @@ public final class DesirePaths extends JavaPlugin {
             return;
         if (!player.isSprinting() && random.nextInt(100) < getChance(player))
             globalSwitcher(block);
-        if (player.isSprinting() && random.nextInt(100) < 12.5 + getChance(player))
+        if (player.isSprinting() && random.nextInt(100) < 13 + getChance(player))
             globalSwitcher(block);
     }
 
