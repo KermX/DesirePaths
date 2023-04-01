@@ -89,20 +89,22 @@ public final class DesirePaths extends JavaPlugin {
             return;
         if (!player.isSprinting() && random.nextInt(100) < getChance(player))
             globalSwitcher(block);
+        Bukkit.getLogger().info("Current Chance is:" + getChance(player));
         if (player.isSprinting() && random.nextInt(100) < 13 + getChance(player))
             globalSwitcher(block);
+        Bukkit.getLogger().info("Current Chance is:" + getChance(player));
     }
 
     private static modifierType getModifier(Player player){
-        ItemStack boots = player.getInventory().getBoots();
-        if (boots == null)
-            return modifierType.NO_BOOTS;
         if (player.getVehicle() instanceof Horse)
             return modifierType.RIDING_HORSE;
         if (player.getVehicle() instanceof Boat)
             return modifierType.RIDING_BOAT;
         if (player.getVehicle() instanceof Pig)
             return modifierType.RIDING_PIG;
+        ItemStack boots = player.getInventory().getBoots();
+        if (boots == null)
+            return modifierType.NO_BOOTS;
         switch (player.getInventory().getBoots().getType()){
             case IRON_BOOTS:
             case GOLDEN_BOOTS:
