@@ -89,10 +89,8 @@ public final class DesirePaths extends JavaPlugin {
             return;
         if (!player.isSprinting() && random.nextInt(100) < getChance(player))
             globalSwitcher(block);
-        Bukkit.getLogger().info("Current Chance is:" + getChance(player));
         if (player.isSprinting() && random.nextInt(100) < 13 + getChance(player))
             globalSwitcher(block);
-        Bukkit.getLogger().info("Current Chance is:" + getChance(player));
     }
 
     private static modifierType getModifier(Player player){
