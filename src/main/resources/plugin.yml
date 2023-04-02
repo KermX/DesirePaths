@@ -2,3 +2,4 @@ name: DesirePaths
 version: '${project.version}'
 main: me.kermx.desirepaths.DesirePaths
 api-version: 1.19
+author: KermX
