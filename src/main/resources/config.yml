@@ -40,3 +40,14 @@ blockModifications:
     - WARPED_NYLIUM:NETHERRACK
     - MYCELIUM:ROOTED_DIRT
     - MAGMA_BLOCK:LAVA
+
+##If towny is installed this section will control where paths can and can't be made
+townyModifiers:
+  pathsInWilderness: true
+  pathsInOwnTown: true
+  pathsInOtherTown: true
+
+##If worldguard is installed this section controls if paths will be created in worldguard regions
+worldguardModifiers:
+  pathsInWorldguardRegions: true
+

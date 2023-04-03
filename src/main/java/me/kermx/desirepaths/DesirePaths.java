@@ -18,6 +18,19 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class DesirePaths extends JavaPlugin {
 
+    private int attemptFrequency;
+    private int noBootsChance;
+    private int leatherBootsChance;
+    private int hasBootsChance;
+    private int featherFallingChance;
+    private int ridingHorseChance;
+    private int ridingBoatChance;
+    private int ridingPigChance;
+    private int sprintingBlockBelowChance;
+    private int sprintingBlockAtFeetChance;
+    private List<String> blockBelowSwitcherConfig;
+    private List<String> blockAtFeetSwitcherConfig;
+
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
 
@@ -27,22 +40,24 @@ public final class DesirePaths extends JavaPlugin {
         // Load config
         saveDefaultConfig();
         reloadConfig();
-        //config attemptFrequency value
-        int attemptFrequency = getConfig().getInt("attemptFrequency");
-        //config chanceModifier values
-        int noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
-        int leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
-        int hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
-        int featherFallingChance = getConfig().getInt("chanceModifiers.FEATHER_FALLING");
-        int ridingHorseChance = getConfig().getInt("chanceModifiers.RIDING_HORSE");
-        int ridingBoatChance = getConfig().getInt("chanceModifiers.RIDING_BOAT");
-        int ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
-        int sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
-        int sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
+        // initial config attemptFrequency value
+        attemptFrequency = getConfig().getInt("attemptFrequency");
+        // initial config chanceModifier values
+        noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
+        leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
+        hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
+        featherFallingChance = getConfig().getInt("chanceModifiers.FEATHER_FALLING");
+        ridingHorseChance = getConfig().getInt("chanceModifiers.RIDING_HORSE");
+        ridingBoatChance = getConfig().getInt("chanceModifiers.RIDING_BOAT");
+        ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
+        sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
+        sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
 
-        //config blockModifications Lists
-        List<String> blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
-        List<String> blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
+        // initial config blockModifications Lists
+        blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
+        blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
+        // register reload command
+        getCommand("desirepaths").setExecutor(new ReloadCommand(this));
 
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
@@ -151,7 +166,25 @@ public final class DesirePaths extends JavaPlugin {
             block.setType(targetMaterial);
         }
     }
+    public void loadConfig() {
+        reloadConfig();
+        //config attemptFrequency value
+        attemptFrequency = getConfig().getInt("attemptFrequency");
+        //config chanceModifier values
+        noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
+        leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
+        hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
+        featherFallingChance = getConfig().getInt("chanceModifiers.FEATHER_FALLING");
+        ridingHorseChance = getConfig().getInt("chanceModifiers.RIDING_HORSE");
+        ridingBoatChance = getConfig().getInt("chanceModifiers.RIDING_BOAT");
+        ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
+        sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
+        sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
 
+        //config blockModifications Lists
+        blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
+        blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
+    }
 
     @Override
     public void onDisable() {
