@@ -22,36 +22,54 @@ public final class DesirePaths extends JavaPlugin {
     private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
 
 
-
     @Override
     public void onEnable() {
-        Bukkit.getLogger().info("DesirePaths enabled successfully!");
+        // Load config
+        saveDefaultConfig();
+        reloadConfig();
+        //config attemptFrequency value
+        int attemptFrequency = getConfig().getInt("attemptFrequency");
+        //config chanceModifier values
+        int noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
+        int leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
+        int hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
+        int featherFallingChance = getConfig().getInt("chanceModifiers.FEATHER_FALLING");
+        int ridingHorseChance = getConfig().getInt("chanceModifiers.RIDING_HORSE");
+        int ridingBoatChance = getConfig().getInt("chanceModifiers.RIDING_BOAT");
+        int ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
+        int sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
+        int sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
+
+        //config blockModifications Lists
+        List<String> blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
+        List<String> blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
+
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                playerHandler(player);
+                playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
             }
-        }, 0L, 10);
-
+        }, 0L, attemptFrequency);
+        Bukkit.getLogger().info("DesirePaths enabled successfully!");
     }
 
-    private void playerHandler(Player player){
-        if (player.getGameMode() != GameMode.SURVIVAL)
+    private void playerHandler(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance, int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig, List<String> blockBelowSwitcherConfig) {
+        if (player.getGameMode() != GameMode.SURVIVAL || player.hasPermission("desirepaths.exempt"))
             return;
-        int chance = getChance(player);
+        int chance = getChance(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance);
         int randomNum = random.nextInt(100);
-        Bukkit.getScheduler().runTask(this,()-> blockBelowHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance, randomNum));
-        Bukkit.getScheduler().runTask(this,()-> blockAtFeetHandler(player.getLocation().getBlock(),player, chance, randomNum));
+        Bukkit.getScheduler().runTask(this,()-> blockBelowHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance, randomNum, sprintingBlockBelowChance, blockBelowSwitcherConfig));
+        Bukkit.getScheduler().runTask(this,()-> blockAtFeetHandler(player.getLocation().getBlock(),player, chance, randomNum, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig));
     }
-    public static int getChance(Player player){
+    public static int getChance(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance) {
         return switch (getModifier(player)) {
-            case RIDING_HORSE -> 37;
-            case RIDING_BOAT -> 99;
-            case RIDING_PIG -> 30;
-            case FEATHER_FALLING -> 10;
-            case HAS_BOOTS -> 20;
-            case LEATHER_BOOTS -> 11;
-            case NO_BOOTS -> 3;
+            case RIDING_HORSE -> ridingHorseChance;
+            case RIDING_BOAT -> ridingBoatChance;
+            case RIDING_PIG -> ridingPigChance;
+            case FEATHER_FALLING -> featherFallingChance;
+            case HAS_BOOTS -> hasBootsChance;
+            case LEATHER_BOOTS -> leatherBootsChance;
+            case NO_BOOTS -> noBootsChance;
         };
     }
     //determine modifier to use for chance
@@ -81,42 +99,57 @@ public final class DesirePaths extends JavaPlugin {
         }
     }
     //Handle block at the players feet
-    private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum){
+    private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig){
         if (!player.isSprinting() && randomNum < chance)
-            blockAtFeetSwitcher(block);
-        if (player.isSprinting())
-            blockAtFeetSwitcher(block);
+            blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
+        if (player.isSprinting() && randomNum < chance + sprintingBlockAtFeetChance)
+            blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
     }
-    private void blockAtFeetSwitcher(Block block){
+    private void blockAtFeetSwitcher(Block block, List<String> blockAtFeetSwitcherConfig) {
         Material type = block.getType();
-        block.setType(switch(type){
-            case SNOW,GRASS,FERN -> Material.AIR;
-            case TALL_GRASS -> Material.GRASS;
-            default -> type;
-        });
+        Map<Material, Material> blockSwitcher = new HashMap<>();
+        for (String switchCase : blockAtFeetSwitcherConfig) {
+            String[] parts = switchCase.split(":");
+            Material sourceMaterial = Material.matchMaterial(parts[0]);
+            Material targetMaterial = Material.matchMaterial(parts[1]);
+            if (sourceMaterial != null && targetMaterial != null) {
+                blockSwitcher.put(sourceMaterial, targetMaterial);
+            } else {
+                getLogger().warning("Invalid block switch case in blockAtFeetModifications: " + switchCase);
+            }
+        }
+        Material targetMaterial = blockSwitcher.get(type);
+        if (targetMaterial != null) {
+            block.setType(targetMaterial);
+        }
     }
 
     //Handle block below the player
-    private void blockBelowHandler(Block block, Player player, int chance, int randomNum){
+    private void blockBelowHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockBelowChance, List<String> blockBelowSwitcherConfig){
         if (player.isSneaking() || player.isSwimming())
             return;
         if (!player.isSprinting() && randomNum < chance)
-            blockBelowSwitcher(block);
-        if (player.isSprinting() && randomNum < 15 + chance)
-            blockBelowSwitcher(block);
+            blockBelowSwitcher(block, blockBelowSwitcherConfig);
+        if (player.isSprinting() && randomNum < chance + sprintingBlockBelowChance)
+            blockBelowSwitcher(block, blockBelowSwitcherConfig);
     }
-    private void blockBelowSwitcher(Block block){
+    private void blockBelowSwitcher(Block block, List<String> blockBelowSwitcherConfig) {
         Material type = block.getType();
-        block.setType(switch(type){
-            case GRASS_BLOCK -> Material.DIRT;
-            case DIRT, PODZOL -> Material.COARSE_DIRT;
-            case COARSE_DIRT -> Material.DIRT_PATH;
-            case SANDSTONE -> Material.SAND;
-            case CRIMSON_NYLIUM, WARPED_NYLIUM -> Material.NETHERRACK;
-            case MYCELIUM -> Material.ROOTED_DIRT;
-            case MAGMA_BLOCK -> Material.LAVA;
-            default -> type;
-        });
+        Map<Material, Material> blockSwitcher = new HashMap<>();
+        for (String switchCase : blockBelowSwitcherConfig) {
+            String[] parts = switchCase.split(":");
+            Material sourceMaterial = Material.matchMaterial(parts[0]);
+            Material targetMaterial = Material.matchMaterial(parts[1]);
+            if (sourceMaterial != null && targetMaterial != null) {
+                blockSwitcher.put(sourceMaterial, targetMaterial);
+            } else {
+                getLogger().warning("Invalid block switch case in blockBelowModifications: " + switchCase);
+            }
+        }
+        Material targetMaterial = blockSwitcher.get(type);
+        if (targetMaterial != null) {
+            block.setType(targetMaterial);
+        }
     }
 
 
