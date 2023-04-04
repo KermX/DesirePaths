@@ -1,6 +1,9 @@
 package me.kermx.desirepaths;
 
+import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,7 +21,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class DesirePaths extends JavaPlugin {
 
-    private int attemptFrequency;
     private int noBootsChance;
     private int leatherBootsChance;
     private int hasBootsChance;
@@ -30,10 +32,12 @@ public final class DesirePaths extends JavaPlugin {
     private int sprintingBlockAtFeetChance;
     private List<String> blockBelowSwitcherConfig;
     private List<String> blockAtFeetSwitcherConfig;
+    private boolean pathsOnlyWherePlayerCanBreak;
 
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
 
+    private boolean townyEnabled;
 
     @Override
     public void onEnable() {
@@ -41,7 +45,7 @@ public final class DesirePaths extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
         // initial config attemptFrequency value
-        attemptFrequency = getConfig().getInt("attemptFrequency");
+        int attemptFrequency = getConfig().getInt("attemptFrequency");
         // initial config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
@@ -52,11 +56,13 @@ public final class DesirePaths extends JavaPlugin {
         ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
         sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
         sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
-
         // initial config blockModifications Lists
         blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
         blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
-        // register reload command
+        // initial config townyModifiers booleans
+        pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
+
+        // initialize reload command
         getCommand("desirepaths").setExecutor(new ReloadCommand(this));
 
         // Plugin startup logic
@@ -65,7 +71,13 @@ public final class DesirePaths extends JavaPlugin {
                 playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
             }
         }, 0L, attemptFrequency);
-        Bukkit.getLogger().info("DesirePaths enabled successfully!");
+        townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
+        if (townyEnabled) {
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Towny integration successful");
+        } else {
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
+        }
     }
 
     private void playerHandler(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance, int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig, List<String> blockBelowSwitcherConfig) {
@@ -114,11 +126,27 @@ public final class DesirePaths extends JavaPlugin {
         }
     }
     //Handle block at the players feet
-    private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig){
-        if (!player.isSprinting() && randomNum < chance)
-            blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
-        if (player.isSprinting() && randomNum < chance + sprintingBlockAtFeetChance)
-            blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
+    private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig) {
+        if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
+            // Run towny not enabled
+            if (!player.isSprinting() && randomNum < chance) {
+                blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
+            }
+            if (player.isSprinting() && randomNum < chance + sprintingBlockAtFeetChance) {
+                blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
+            }
+        } else {
+            // Run if towny is enabled and canBuild is true
+            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.BUILD);
+            if (canBuild) {
+                if (!player.isSprinting() && randomNum < chance) {
+                    blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
+                }
+                if (player.isSprinting() && randomNum < chance + sprintingBlockAtFeetChance) {
+                    blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
+                }
+            }
+        }
     }
     private void blockAtFeetSwitcher(Block block, List<String> blockAtFeetSwitcherConfig) {
         Material type = block.getType();
@@ -130,7 +158,7 @@ public final class DesirePaths extends JavaPlugin {
             if (sourceMaterial != null && targetMaterial != null) {
                 blockSwitcher.put(sourceMaterial, targetMaterial);
             } else {
-                getLogger().warning("Invalid block switch case in blockAtFeetModifications: " + switchCase);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " Invalid block switch case in blockAtFeetModifications: " + switchCase);
             }
         }
         Material targetMaterial = blockSwitcher.get(type);
@@ -140,13 +168,27 @@ public final class DesirePaths extends JavaPlugin {
     }
 
     //Handle block below the player
-    private void blockBelowHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockBelowChance, List<String> blockBelowSwitcherConfig){
-        if (player.isSneaking() || player.isSwimming())
-            return;
-        if (!player.isSprinting() && randomNum < chance)
-            blockBelowSwitcher(block, blockBelowSwitcherConfig);
-        if (player.isSprinting() && randomNum < chance + sprintingBlockBelowChance)
-            blockBelowSwitcher(block, blockBelowSwitcherConfig);
+    private void blockBelowHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockBelowChance, List<String> blockBelowSwitcherConfig) {
+        if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
+            // Run towny not enabled
+            if (!player.isSprinting() && randomNum < chance) {
+                blockBelowSwitcher(block, blockBelowSwitcherConfig);
+            }
+            if (player.isSprinting() && randomNum < chance + sprintingBlockBelowChance) {
+                blockBelowSwitcher(block, blockBelowSwitcherConfig);
+            }
+        } else {
+            // Run if towny is enabled and canBuild is true
+            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.BUILD);
+            if (canBuild) {
+                if (!player.isSprinting() && randomNum < chance) {
+                    blockBelowSwitcher(block, blockBelowSwitcherConfig);
+                }
+                if (player.isSprinting() && randomNum < chance + sprintingBlockBelowChance) {
+                    blockBelowSwitcher(block, blockBelowSwitcherConfig);
+                }
+            }
+        }
     }
     private void blockBelowSwitcher(Block block, List<String> blockBelowSwitcherConfig) {
         Material type = block.getType();
@@ -158,7 +200,7 @@ public final class DesirePaths extends JavaPlugin {
             if (sourceMaterial != null && targetMaterial != null) {
                 blockSwitcher.put(sourceMaterial, targetMaterial);
             } else {
-                getLogger().warning("Invalid block switch case in blockBelowModifications: " + switchCase);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " Invalid block switch case in blockBelowModifications: " + switchCase);
             }
         }
         Material targetMaterial = blockSwitcher.get(type);
@@ -168,9 +210,7 @@ public final class DesirePaths extends JavaPlugin {
     }
     public void loadConfig() {
         reloadConfig();
-        //config attemptFrequency value
-        attemptFrequency = getConfig().getInt("attemptFrequency");
-        //config chanceModifier values
+        // config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
         hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
@@ -180,15 +220,16 @@ public final class DesirePaths extends JavaPlugin {
         ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
         sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
         sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
-
-        //config blockModifications Lists
+        // config blockModifications Lists
         blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
         blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
+        // config townyModifiers booleans
+        pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
     }
 
     @Override
     public void onDisable() {
-        Bukkit.getLogger().info("DesirePaths disabled!");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " DesirePaths Disabled");
         // Plugin shutdown logic
     }
 }

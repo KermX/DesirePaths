@@ -1,6 +1,7 @@
 ## attemptFrequency controls how often DesirePaths will roll the dice to change blocks
 ## attemptFrequency is in ticks. 20 ticks = 1 second. IT IS HIGHLY DISCOURAGED TO SET THIS BELOW 5
 ## you can increase this number if you run into any performance issues but the effect of DesirePaths will be less pronounced
+## THIS VALUE DOES NOT CHANGE WITH </desirepaths reload> YOU MUST RESTART THE SERVER FOR THIS TO TAKE EFFECT
 attemptFrequency: 10
 
 ##chanceModifiers control the chance that a block below the player or at their feet will be changed
@@ -41,13 +42,7 @@ blockModifications:
     - MYCELIUM:ROOTED_DIRT
     - MAGMA_BLOCK:LAVA
 
-##If towny is installed this section will control where paths can and can't be made
+##If towny is installed this section will control if paths can be made anywhere or only where the player can break blocks
 townyModifiers:
-  pathsInWilderness: true
-  pathsInOwnTown: true
-  pathsInOtherTown: true
-
-##If worldguard is installed this section controls if paths will be created in worldguard regions
-worldguardModifiers:
-  pathsInWorldguardRegions: true
+  pathsOnlyWherePlayerCanBreak: true
 

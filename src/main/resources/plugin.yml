@@ -3,6 +3,8 @@ version: '${project.version}'
 main: me.kermx.desirepaths.DesirePaths
 api-version: 1.19
 author: KermX
+softdepend:
+  - Towny
 commands:
   desirepaths:
     description: Reload the configuration file for DesirePaths

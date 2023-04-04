@@ -23,6 +23,7 @@ public class ReloadCommand implements CommandExecutor {
                 return true;
             }
         }
+        sender.sendMessage(ChatColor.RED + "DesirePaths did not reloaded!");
         return false;
     }
 }
