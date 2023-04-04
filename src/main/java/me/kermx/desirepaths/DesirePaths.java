@@ -2,10 +2,7 @@ package me.kermx.desirepaths;
 
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
@@ -21,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class DesirePaths extends JavaPlugin {
 
+    private List<String> disabledWorlds;
     private int noBootsChance;
     private int leatherBootsChance;
     private int hasBootsChance;
@@ -46,6 +44,8 @@ public final class DesirePaths extends JavaPlugin {
         reloadConfig();
         // initial config attemptFrequency value
         int attemptFrequency = getConfig().getInt("attemptFrequency");
+        // initial config disabledWorlds list
+        disabledWorlds = getConfig().getStringList("disabledWorlds");
         // initial config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
@@ -56,7 +56,7 @@ public final class DesirePaths extends JavaPlugin {
         ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
         sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
         sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
-        // initial config blockModifications Lists
+        // initial config blockModifications lists
         blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
         blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
         // initial config townyModifiers booleans
@@ -71,6 +71,7 @@ public final class DesirePaths extends JavaPlugin {
                 playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
             }
         }, 0L, attemptFrequency);
+        // check if towny is installed
         townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
         if (townyEnabled) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
@@ -127,6 +128,9 @@ public final class DesirePaths extends JavaPlugin {
     }
     //Handle block at the players feet
     private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig) {
+        if (disabledWorlds.contains(player.getWorld().getName())){
+            return;
+        }
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
             if (!player.isSprinting() && randomNum < chance) {
@@ -137,7 +141,7 @@ public final class DesirePaths extends JavaPlugin {
             }
         } else {
             // Run if towny is enabled and canBuild is true
-            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.BUILD);
+            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY);
             if (canBuild) {
                 if (!player.isSprinting() && randomNum < chance) {
                     blockAtFeetSwitcher(block, blockAtFeetSwitcherConfig);
@@ -169,6 +173,9 @@ public final class DesirePaths extends JavaPlugin {
 
     //Handle block below the player
     private void blockBelowHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockBelowChance, List<String> blockBelowSwitcherConfig) {
+        if (disabledWorlds.contains(player.getWorld().getName())){
+            return;
+        }
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
             if (!player.isSprinting() && randomNum < chance) {
@@ -179,7 +186,7 @@ public final class DesirePaths extends JavaPlugin {
             }
         } else {
             // Run if towny is enabled and canBuild is true
-            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.BUILD);
+            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY);
             if (canBuild) {
                 if (!player.isSprinting() && randomNum < chance) {
                     blockBelowSwitcher(block, blockBelowSwitcherConfig);
@@ -210,6 +217,8 @@ public final class DesirePaths extends JavaPlugin {
     }
     public void loadConfig() {
         reloadConfig();
+        // config disabledWorlds list
+        disabledWorlds = getConfig().getStringList("disabledWorlds");
         // config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");

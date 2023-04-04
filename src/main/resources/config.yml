@@ -1,11 +1,15 @@
-## attemptFrequency controls how often DesirePaths will roll the dice to change blocks
-## attemptFrequency is in ticks. 20 ticks = 1 second. IT IS HIGHLY DISCOURAGED TO SET THIS BELOW 5
-## you can increase this number if you run into any performance issues but the effect of DesirePaths will be less pronounced
-## THIS VALUE DOES NOT CHANGE WITH </desirepaths reload> YOU MUST RESTART THE SERVER FOR THIS TO TAKE EFFECT
+## attemptFrequency controls how often DesirePaths will roll the dice to change blocks.
+## attemptFrequency is in ticks. 20 ticks = 1 second. IT IS HIGHLY DISCOURAGED TO SET THIS BELOW 5!!!
+## Increase this number if you run into any performance issues but the effect of DesirePaths will be less apparent.
+## THIS VALUE DOES NOT CHANGE WITH </desirepaths reload> YOU MUST RESTART THE SERVER FOR THIS TO TAKE EFFECT!
 attemptFrequency: 10
 
-##chanceModifiers control the chance that a block below the player or at their feet will be changed
-##Chances are out of 100
+## List of worlds that DesirePaths will not affect.
+disabledWorlds:
+  - exampleworld
+
+## chanceModifiers for block changes.
+## Chances are out of 100.
 chanceModifiers:
   RIDING_HORSE: 37
   RIDING_BOAT: 99
@@ -14,23 +18,23 @@ chanceModifiers:
   HAS_BOOTS: 20
   LEATHER_BOOTS: 11
   NO_BOOTS: 3
-##These chances are slightly different, they are in addition to the chance from the other modifiers and are only added when the player is sprinting
+## SPRINTING_BLOCK_BELOW and SPRINTING_BLOCK_AT_FEET are added to the chance from the other modifiers.
+## They are only added when the player is sprinting.
   SPRINTING_BLOCK_BELOW: 13
   SPRINTING_BLOCK_AT_FEET: 100
 
-
 ## blockModifications are how DesirePaths knows which blocks to check for as well as what blocks they should turn into
-## use blocks from https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
-## DO NOT add the same block twice
-## avoid adding tons of blocks to this list as it could possibly affect performance
+## ex. Dirt turns into Diamond Blocks -> DIRT:DIAMOND_BLOCK
+## Use blocks from https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+## Avoid adding tons of blocks to this list as it could possibly affect performance
 blockModifications:
-## blockAtFeetModifications are the blocks at the same level as the players feet
+## Blocks at the same level as the player's feet
   blockAtFeetModifications:
     - SNOW:AIR
     - GRASS:AIR
     - FERN:AIR
     - TALL_GRASS:GRASS
-## blockBelowModifications are the blocks below that the player is standing on
+## Blocks below that the player is standing on
   blockBelowModifications:
     - GRASS_BLOCK:DIRT
     - DIRT:COARSE_DIRT
@@ -42,7 +46,8 @@ blockModifications:
     - MYCELIUM:ROOTED_DIRT
     - MAGMA_BLOCK:LAVA
 
-##If towny is installed this section will control if paths can be made anywhere or only where the player can break blocks
+## Only relevant if Towny is installed
+## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
 townyModifiers:
   pathsOnlyWherePlayerCanBreak: true
 
