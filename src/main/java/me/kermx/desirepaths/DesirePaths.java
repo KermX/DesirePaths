@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class DesirePaths extends JavaPlugin {
 
+    WorldGuardIntegration worldGuardIntegration = new WorldGuardIntegration();
     private List<String> disabledWorlds;
     private int noBootsChance;
     private int leatherBootsChance;
@@ -36,6 +37,16 @@ public final class DesirePaths extends JavaPlugin {
     private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
 
     private boolean townyEnabled;
+    public boolean worldGuardEnabled;
+
+    @Override
+    public void onLoad() {
+        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
+            if (worldGuardIntegration != null) {
+                worldGuardIntegration.preloadWorldGuardIntegration();
+            }
+        }
+    }
 
     @Override
     public void onEnable() {
@@ -63,7 +74,7 @@ public final class DesirePaths extends JavaPlugin {
         pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
 
         // initialize reload command
-        getCommand("desirepaths").setExecutor(new ReloadCommand(this));
+        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new ReloadCommand(this));
 
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
@@ -71,11 +82,19 @@ public final class DesirePaths extends JavaPlugin {
                 playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
             }
         }, 0L, attemptFrequency);
-        // check if towny is installed
+        // check if towny & worldguard are installed
         townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
-        if (townyEnabled) {
+        worldGuardEnabled = Bukkit.getPluginManager().isPluginEnabled("WorldGuard");
+        if (townyEnabled && worldGuardEnabled) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
             Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Towny integration successful");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-WorldGuard integration successful");
+        } else if (townyEnabled){
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Towny integration successful");
+        } else if (worldGuardEnabled){
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-WorldGuard integration successful");
         } else {
             Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
         }
@@ -235,7 +254,6 @@ public final class DesirePaths extends JavaPlugin {
         // config townyModifiers booleans
         pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
     }
-
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " DesirePaths Disabled");

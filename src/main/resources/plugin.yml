@@ -5,6 +5,7 @@ api-version: 1.19
 author: KermX
 softdepend:
   - Towny
+  - WorldGuard
 commands:
   desirepaths:
     description: Reload the configuration file for DesirePaths

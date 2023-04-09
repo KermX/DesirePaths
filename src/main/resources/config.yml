@@ -50,4 +50,3 @@ blockModifications:
 ## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
 townyModifiers:
   pathsOnlyWherePlayerCanBreak: true
-
