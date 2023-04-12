@@ -24,7 +24,7 @@ public class WorldGuardIntegration {
         RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
         ApplicableRegionSet set = query.getApplicableRegions(location);
         StateFlag.State state = set.queryState(localPlayer, WorldGuardIntegration.DESIREPATHS_PATHS);
-        return state == StateFlag.State.ALLOW;
+        return state != StateFlag.State.ALLOW;
     }
 
 

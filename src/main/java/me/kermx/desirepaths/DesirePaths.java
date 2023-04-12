@@ -154,7 +154,7 @@ public final class DesirePaths extends JavaPlugin {
             return;
         }
         if (worldGuardEnabled){
-            if (!worldGuardIntegration.checkFlag(player)) {
+            if (worldGuardIntegration.checkFlag(player)) {
                 return;
             }
         }
@@ -204,7 +204,7 @@ public final class DesirePaths extends JavaPlugin {
             return;
         }
         if (worldGuardEnabled){
-            if (!worldGuardIntegration.checkFlag(player)) {
+            if (worldGuardIntegration.checkFlag(player)) {
                 return;
             }
         }
