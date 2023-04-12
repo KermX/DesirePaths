@@ -18,7 +18,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class DesirePaths extends JavaPlugin {
 
-    WorldGuardIntegration worldGuardIntegration = new WorldGuardIntegration();
     private List<String> disabledWorlds;
     private int noBootsChance;
     private int leatherBootsChance;
@@ -36,14 +35,18 @@ public final class DesirePaths extends JavaPlugin {
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
 
+    private WorldGuardIntegration worldGuardIntegration;
+
     private boolean townyEnabled;
     public boolean worldGuardEnabled;
 
     @Override
     public void onLoad() {
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            if (worldGuardIntegration != null) {
+            try {
+                worldGuardIntegration = new WorldGuardIntegration();
                 worldGuardIntegration.preloadWorldGuardIntegration();
+            } catch (NoClassDefFoundError ignored) {
             }
         }
     }
@@ -150,6 +153,11 @@ public final class DesirePaths extends JavaPlugin {
         if (disabledWorlds.contains(player.getWorld().getName())){
             return;
         }
+        if (worldGuardEnabled){
+            if (!worldGuardIntegration.checkFlag(player)) {
+                return;
+            }
+        }
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
             if (!player.isSprinting() && randomNum < chance) {
@@ -194,6 +202,11 @@ public final class DesirePaths extends JavaPlugin {
     private void blockBelowHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockBelowChance, List<String> blockBelowSwitcherConfig) {
         if (disabledWorlds.contains(player.getWorld().getName())){
             return;
+        }
+        if (worldGuardEnabled){
+            if (!worldGuardIntegration.checkFlag(player)) {
+                return;
+            }
         }
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
