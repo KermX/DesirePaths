@@ -9,8 +9,5 @@
         <module name="DesirePaths" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="DesirePaths" target="14" />
-    </bytecodeTargetLevel>
   </component>
 </project>

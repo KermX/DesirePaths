@@ -2,6 +2,10 @@ package me.kermx.desirepaths;
 
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import me.kermx.desirepaths.commands.ReloadCommand;
+import me.kermx.desirepaths.path.PathModifierType;
+import me.kermx.desirepaths.utils.ConfigOptions;
+import me.kermx.desirepaths.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -18,138 +22,39 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class DesirePaths extends JavaPlugin {
 
-    private List<String> disabledWorlds;
-    private int noBootsChance;
-    private int leatherBootsChance;
-    private int hasBootsChance;
-    private int featherFallingChance;
-    private int ridingHorseChance;
-    private int ridingBoatChance;
-    private int ridingPigChance;
-    private int sprintingBlockBelowChance;
-    private int sprintingBlockAtFeetChance;
-    private List<String> blockBelowSwitcherConfig;
-    private List<String> blockAtFeetSwitcherConfig;
-    private boolean pathsOnlyWherePlayerCanBreak;
+    private static DesirePaths instance;
 
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
-    private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
-
-    private WorldGuardIntegration worldGuardIntegration;
-
-    private boolean townyEnabled;
-    public boolean worldGuardEnabled;
 
     @Override
     public void onLoad() {
-        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            try {
-                worldGuardIntegration = new WorldGuardIntegration();
-                worldGuardIntegration.preloadWorldGuardIntegration();
-            } catch (NoClassDefFoundError ignored) {
-            }
-        }
+        instance = this;
     }
 
     @Override
     public void onEnable() {
-        // Load config
         saveDefaultConfig();
         reloadConfig();
-        // initial config attemptFrequency value
-        int attemptFrequency = getConfig().getInt("attemptFrequency");
-        // initial config disabledWorlds list
-        disabledWorlds = getConfig().getStringList("disabledWorlds");
-        // initial config chanceModifier values
-        noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
-        leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
-        hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
-        featherFallingChance = getConfig().getInt("chanceModifiers.FEATHER_FALLING");
-        ridingHorseChance = getConfig().getInt("chanceModifiers.RIDING_HORSE");
-        ridingBoatChance = getConfig().getInt("chanceModifiers.RIDING_BOAT");
-        ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
-        sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
-        sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
-        // initial config blockModifications lists
-        blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
-        blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
-        // initial config townyModifiers booleans
-        pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
-
-        // initialize reload command
         Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new ReloadCommand(this));
 
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                playerHandler(player);
             }
-        }, 0L, attemptFrequency);
-        // check if towny & worldguard are installed
-        townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
-        worldGuardEnabled = Bukkit.getPluginManager().isPluginEnabled("WorldGuard");
-        if (townyEnabled && worldGuardEnabled) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Towny integration successful");
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-WorldGuard integration successful");
-        } else if (townyEnabled){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Towny integration successful");
-        } else if (worldGuardEnabled){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-WorldGuard integration successful");
-        } else {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
-        }
+        }, 0L, ConfigOptions.ATTEMPT_FREQUENCY.getValue(int.class));
     }
 
-    private void playerHandler(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance, int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig, List<String> blockBelowSwitcherConfig) {
+    private void playerHandler(Player player) {
         if (player.getGameMode() != GameMode.SURVIVAL || player.hasPermission("desirepaths.exempt"))
             return;
-        int chance = getChance(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance);
+        int chance = PathModifierType.getModifier(player).getChance();
         int randomNum = random.nextInt(100);
-        Bukkit.getScheduler().runTask(this,()-> blockBelowHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance, randomNum, sprintingBlockBelowChance, blockBelowSwitcherConfig));
-        Bukkit.getScheduler().runTask(this,()-> blockAtFeetHandler(player.getLocation().getBlock(),player, chance, randomNum, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig));
+        Bukkit.getScheduler().runTask(this,()-> blockBelowHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance, randomNum));
+        Bukkit.getScheduler().runTask(this,()-> blockAtFeetHandler(player.getLocation().getBlock(),player, chance, randomNum));
     }
-    public static int getChance(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance) {
-        return switch (getModifier(player)) {
-            case RIDING_HORSE -> ridingHorseChance;
-            case RIDING_BOAT -> ridingBoatChance;
-            case RIDING_PIG -> ridingPigChance;
-            case FEATHER_FALLING -> featherFallingChance;
-            case HAS_BOOTS -> hasBootsChance;
-            case LEATHER_BOOTS -> leatherBootsChance;
-            case NO_BOOTS -> noBootsChance;
-        };
-    }
-    //determine modifier to use for chance
-    private static modifierType getModifier(Player player){
-        if (player.getVehicle() instanceof Horse)
-            return modifierType.RIDING_HORSE;
-        if (player.getVehicle() instanceof Boat)
-            return modifierType.RIDING_BOAT;
-        if (player.getVehicle() instanceof Pig)
-            return modifierType.RIDING_PIG;
-        ItemStack boots = player.getInventory().getBoots();
-        if (boots == null)
-            return modifierType.NO_BOOTS;
-        Material bootMaterial = boots.getType();
-        Set<Material> bootMaterials = EnumSet.of(Material.IRON_BOOTS,Material.GOLDEN_BOOTS,Material.DIAMOND_BOOTS,Material.NETHERITE_BOOTS,Material.LEATHER_BOOTS);
-        Optional<Enchantment> featherFallingEnchantment = boots.getEnchantments().keySet().stream().filter(Enchantment.PROTECTION_FALL::equals).findFirst();
-        if (bootMaterials.contains(bootMaterial)){
-            if (featherFallingEnchantment.isPresent()){
-                return modifierType.FEATHER_FALLING;
-            } else {
-                return modifierType.HAS_BOOTS;
-            }
-        } else if (bootMaterial == Material.LEATHER_BOOTS){
-            return modifierType.LEATHER_BOOTS;
-        } else {
-            return modifierType.NO_BOOTS;
-        }
-    }
-    //Handle block at the players feet
-    private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig) {
+
+    private void blockAtFeetHandler(Block block, Player player, int chance, int randomNum) {
         if (disabledWorlds.contains(player.getWorld().getName())){
             return;
         }
@@ -199,7 +104,7 @@ public final class DesirePaths extends JavaPlugin {
     }
 
     //Handle block below the player
-    private void blockBelowHandler(Block block, Player player, int chance, int randomNum, int sprintingBlockBelowChance, List<String> blockBelowSwitcherConfig) {
+    private void blockBelowHandler(Block block, Player player, int chance, int randomNumg) {
         if (disabledWorlds.contains(player.getWorld().getName())){
             return;
         }
@@ -247,29 +152,19 @@ public final class DesirePaths extends JavaPlugin {
             block.setType(targetMaterial);
         }
     }
-    public void loadConfig() {
-        reloadConfig();
-        // config disabledWorlds list
-        disabledWorlds = getConfig().getStringList("disabledWorlds");
-        // config chanceModifier values
-        noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
-        leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
-        hasBootsChance = getConfig().getInt("chanceModifiers.HAS_BOOTS");
-        featherFallingChance = getConfig().getInt("chanceModifiers.FEATHER_FALLING");
-        ridingHorseChance = getConfig().getInt("chanceModifiers.RIDING_HORSE");
-        ridingBoatChance = getConfig().getInt("chanceModifiers.RIDING_BOAT");
-        ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
-        sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
-        sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
-        // config blockModifications Lists
-        blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
-        blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
-        // config townyModifiers booleans
-        pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
+
+    @Override
+    public void reloadConfig() {
+        super.reloadConfig();
+        ConfigOptions.cachedValues.clear();
     }
     @Override
     public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " DesirePaths Disabled");
-        // Plugin shutdown logic
+        Utils.sendMessage(null, "&6>>&4 DesirePaths Disabled");
+        instance = null;
+    }
+
+    public static DesirePaths getInstance() {
+        return instance;
     }
 }

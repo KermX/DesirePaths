@@ -1,5 +1,6 @@
-package me.kermx.desirepaths;
+package me.kermx.desirepaths.commands;
 
+import me.kermx.desirepaths.DesirePaths;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,13 +16,10 @@ public class ReloadCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("desirepaths")) {
-            if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                plugin.reloadConfig();
-                plugin.loadConfig();
-                sender.sendMessage(ChatColor.GREEN + "DesirePaths configuration reloaded!");
-                return true;
-            }
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            plugin.reloadConfig();
+            sender.sendMessage(ChatColor.GREEN + "DesirePaths configuration reloaded!");
+            return true;
         }
         sender.sendMessage(ChatColor.RED + "Incorrect Usage!");
         return false;
