@@ -31,6 +31,11 @@ public final class DesirePaths extends JavaPlugin {
 
         PathHandler pathHandler = new PathHandler(this);
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, pathHandler, 0L, ConfigOptions.ATTEMPT_FREQUENCY.getValue(int.class));
+
+        if (this.isEnabled() && this.isNaggable()) {
+            return;
+        }
+        System.out.println("ggrg");
     }
 
     @Override

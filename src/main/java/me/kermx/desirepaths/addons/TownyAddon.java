@@ -2,6 +2,7 @@ package me.kermx.desirepaths.addons;
 
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import me.kermx.desirepaths.utils.ConfigOptions;
 import me.kermx.desirepaths.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -31,6 +32,6 @@ public class TownyAddon extends Addon {
 
     @Override
     public boolean isAllowed(Player player, Block block) {
-        return PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY);
+        return PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY) && ConfigOptions.PATHS_WHERE_ONLY_PLAYER_CAN_BREAK.getValue(boolean.class);
     }
 }
