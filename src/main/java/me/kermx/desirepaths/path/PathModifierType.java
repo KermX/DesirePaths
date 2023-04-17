@@ -34,7 +34,7 @@ public enum PathModifierType {
     public static PathModifierType getModifier(Player player) {
         Entity vehicle = player.getVehicle();
         for (PathModifierType type : (vehicle == null ? new PathModifierType[0] : values())) {
-            if (type.entityType != null && type.entityType.isAssignableFrom(vehicle.getClass()) {
+            if (type.entityType != null && type.entityType.isAssignableFrom(vehicle.getClass())) {
                 return type;
             }
         }

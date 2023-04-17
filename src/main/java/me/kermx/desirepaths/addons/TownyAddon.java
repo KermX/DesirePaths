@@ -1,8 +1,11 @@
 package me.kermx.desirepaths.addons;
 
+import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import me.kermx.desirepaths.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class TownyAddon extends Addon {
@@ -24,5 +27,10 @@ public class TownyAddon extends Addon {
     @Override
     public boolean isEnabled() {
         return Bukkit.getPluginManager().getPlugin("Towny") != null;
+    }
+
+    @Override
+    public boolean isAllowed(Player player, Block block) {
+        return PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY);
     }
 }

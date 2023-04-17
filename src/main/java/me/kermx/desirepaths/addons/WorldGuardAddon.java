@@ -9,7 +9,7 @@ import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import me.kermx.desirepaths.utils.Utils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -53,12 +53,13 @@ public class WorldGuardAddon extends Addon {
         return Bukkit.getPluginManager().getPlugin("WorldGuard") != null;
     }
 
-    public boolean checkFlag(Player player) {
+    @Override
+    public boolean isAllowed(Player player, Block block) {
         return this.worldGuard
                 .getPlatform()
                 .getRegionContainer()
                 .createQuery()
                 .getApplicableRegions(BukkitAdapter.adapt(player.getLocation()))
-                .queryState(this.worldGuardPlugin.wrapPlayer(player), DESIREPATHS_PATHS) != StateFlag.State.ALLOW;
+                .queryState(this.worldGuardPlugin.wrapPlayer(player), DESIREPATHS_PATHS) == StateFlag.State.ALLOW;
     }
 }
