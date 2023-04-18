@@ -7,6 +7,7 @@ import me.kermx.desirepaths.addons.WorldGuardAddon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 public class AddonManager extends Manager {
 
@@ -19,8 +20,11 @@ public class AddonManager extends Manager {
 
     @Override
     public void setup() {
-        addons.add(new TownyAddon(plugin));
-        addons.add(new WorldGuardAddon(plugin));
+        for (Class<? extends Addon>> clazz : Arrays.asList(TownyAddon.class, WorldGuardAddon.class)) {
+            try {
+                addons.add(clazz.getDeclaredConstructor(JavaPlugin.class).newInstance(plugin);
+            } catch (Throwable ignored) {}
+        }
         addons.removeIf(x -> !x.isEnabled());
     }
 
