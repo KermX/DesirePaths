@@ -2,6 +2,7 @@ package me.kermx.desirepaths.managers;
 
 import me.kermx.desirepaths.DesirePaths;
 import me.kermx.desirepaths.addons.Addon;
+import me.kermx.desirepaths.addons.PlaceholderAddon;
 import me.kermx.desirepaths.addons.TownyAddon;
 import me.kermx.desirepaths.addons.WorldGuardAddon;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,7 +22,7 @@ public class AddonManager extends Manager {
 
     @Override
     public void setup() {
-        for (Class<? extends Addon> clazz : Arrays.asList(TownyAddon.class, WorldGuardAddon.class)) {
+        for (Class<? extends Addon> clazz : Arrays.asList(PlaceholderAddon.class, TownyAddon.class, WorldGuardAddon.class)) {
             try {
                 addons.add(clazz.getDeclaredConstructor(JavaPlugin.class).newInstance(plugin));
             } catch (Throwable ignored) {}

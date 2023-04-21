@@ -20,12 +20,10 @@ import java.util.Random;
 
 public class PathHandler implements Runnable {
 
-    private final JavaPlugin plugin;
     private final Random random;
 
-    public PathHandler(JavaPlugin plugin) {
+    public PathHandler() {
         this.random = new Random();
-        this.plugin = plugin;
     }
 
     @Override
@@ -35,26 +33,24 @@ public class PathHandler implements Runnable {
 
             int chance = PathModifierType.getModifier(player).getChance();
             int randomNum = random.nextInt(100);
-            Bukkit.getScheduler().runTask(this.plugin, () -> {
-                if (ConfigOptions.DISABLED_WORLDS.getValue(List.class).contains(player.getWorld().getName())) return;
+            if (ConfigOptions.DISABLED_WORLDS.getValue(List.class).contains(player.getWorld().getName())) return;
 
-                outer:
-                for (Addon addon : Manager.get(AddonManager.class).getAddons()) {
-                    for (int i = 0; i < 2; i++) {
-                        Block block = i == 0 ? player.getLocation().getBlock().getRelative(BlockFace.DOWN) : player.getLocation().getBlock();
-                        if (!addon.isAllowed(player, block)) continue outer;
+            outer:
+            for (Addon addon : Manager.get(AddonManager.class).getAddons()) {
+                for (int i = 0; i < 2; i++) {
+                    Block block = i == 0 ? player.getLocation().getBlock().getRelative(BlockFace.DOWN) : player.getLocation().getBlock();
+                    if (!addon.isAllowed(player, block)) continue outer;
 
-                        ConfigOptions configOptions = i == 0 ? ConfigOptions.SPRINTING_BLOCK_AT_FEET_CHANCE : ConfigOptions.SPRINTING_BLOCK_BELOW_CHANCE;
-                        if ((player.isSprinting() || randomNum >= chance)) {
-                            blockSwitcher(block, (i == 0 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
-                        }
-                        if (!player.isSprinting() || randomNum >= chance + configOptions.getValue(Integer.class)) {
-                            blockSwitcher(block, (i == 0 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
-                        }
+                    ConfigOptions configOptions = i == 1 ? ConfigOptions.SPRINTING_BLOCK_AT_FEET_CHANCE : ConfigOptions.SPRINTING_BLOCK_BELOW_CHANCE;
+                    if (!player.isSprinting() && randomNum < chance) {
+                        blockSwitcher(block, (i == 1 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
                     }
-                    return;
+                    if (player.isSprinting() && randomNum < chance + configOptions.getValue(Integer.class)) {
+                        blockSwitcher(block, (i == 1 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
+                    }
                 }
-            });
+                return;
+            }
         }
     }
 

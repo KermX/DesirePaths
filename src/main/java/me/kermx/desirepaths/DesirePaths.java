@@ -28,9 +28,7 @@ public final class DesirePaths extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
         Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new ReloadCommand(this));
-
-        PathHandler pathHandler = new PathHandler(this);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, pathHandler, 0L, ConfigOptions.ATTEMPT_FREQUENCY.getValue(Integer.class));
+        Bukkit.getScheduler().runTaskTimer(this, new PathHandler(), 0L, ConfigOptions.ATTEMPT_FREQUENCY.getValue(Integer.class));
     }
 
     @Override

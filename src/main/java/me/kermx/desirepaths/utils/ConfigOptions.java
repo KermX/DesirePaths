@@ -1,6 +1,7 @@
 package me.kermx.desirepaths.utils;
 
 import me.kermx.desirepaths.DesirePaths;
+import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.Map;

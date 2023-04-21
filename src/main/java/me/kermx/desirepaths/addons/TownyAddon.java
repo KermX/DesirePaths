@@ -32,6 +32,6 @@ public class TownyAddon extends Addon {
 
     @Override
     public boolean isAllowed(Player player, Block block) {
-        return PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY) && ConfigOptions.PATHS_WHERE_ONLY_PLAYER_CAN_BREAK.getValue(boolean.class);
+        return PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(), TownyPermission.ActionType.DESTROY) && ConfigOptions.PATHS_WHERE_ONLY_PLAYER_CAN_BREAK.getValue(Boolean.class);
     }
 }
