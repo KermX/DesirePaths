@@ -48,9 +48,8 @@ public class PathHandler implements Runnable {
                         if ((player.isSprinting() || randomNum >= chance)) {
                             blockSwitcher(block, (i == 0 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
                         }
-
                         if (!player.isSprinting() || randomNum >= chance + configOptions.getValue(Integer.class)) {
-                            blockSwitcher(block, (i == 0 ? ConfigOptions.SPRINTING_BLOCK_AT_FEET_CHANCE : ConfigOptions.SPRINTING_BLOCK_BELOW_CHANCE).getValue(List.class));
+                            blockSwitcher(block, (i == 0 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
                         }
                     }
                     return;
