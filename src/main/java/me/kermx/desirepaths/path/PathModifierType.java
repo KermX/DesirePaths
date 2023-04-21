@@ -13,13 +13,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public enum PathModifierType {
-    NO_BOOTS(null, () -> ConfigOptions.NO_BOOTS_CHANCE.getValue(int.class)),
-    LEATHER_BOOTS(null, () -> ConfigOptions.LEATHER_BOOTS_CHANCE.getValue(int.class)),
-    HAS_BOOTS(null, () -> ConfigOptions.HAS_BOOTS_CHANCE.getValue(int.class)),
-    FEATHER_FALLING(null, () -> ConfigOptions.FEATHER_FALLING_CHANCE.getValue(int.class)),
-    RIDING_HORSE(Horse.class, () -> ConfigOptions.RIDING_HORSE_CHANCE.getValue(int.class)),
-    RIDING_BOAT(Boat.class, () -> ConfigOptions.RIDING_BOAT_CHANCE.getValue(int.class)),
-    RIDING_PIG(Pig.class, () -> ConfigOptions.RIDING_PIG_CHANCE.getValue(int.class));
+    NO_BOOTS(null, () -> ConfigOptions.NO_BOOTS_CHANCE.getValue(Integer.class)),
+    LEATHER_BOOTS(null, () -> ConfigOptions.LEATHER_BOOTS_CHANCE.getValue(Integer.class)),
+    HAS_BOOTS(null, () -> ConfigOptions.HAS_BOOTS_CHANCE.getValue(Integer.class)),
+    FEATHER_FALLING(null, () -> ConfigOptions.FEATHER_FALLING_CHANCE.getValue(Integer.class)),
+    RIDING_HORSE(Horse.class, () -> ConfigOptions.RIDING_HORSE_CHANCE.getValue(Integer.class)),
+    RIDING_BOAT(Boat.class, () -> ConfigOptions.RIDING_BOAT_CHANCE.getValue(Integer.class)),
+    RIDING_PIG(Pig.class, () -> ConfigOptions.RIDING_PIG_CHANCE.getValue(Integer.class));
 
     private final Class<? extends Entity> entityType;
     private final Supplier<Integer> chance;
