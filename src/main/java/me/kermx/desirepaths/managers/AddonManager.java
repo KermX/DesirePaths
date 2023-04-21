@@ -4,6 +4,7 @@ import me.kermx.desirepaths.DesirePaths;
 import me.kermx.desirepaths.addons.Addon;
 import me.kermx.desirepaths.addons.TownyAddon;
 import me.kermx.desirepaths.addons.WorldGuardAddon;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +21,9 @@ public class AddonManager extends Manager {
 
     @Override
     public void setup() {
-        for (Class<? extends Addon>> clazz : Arrays.asList(TownyAddon.class, WorldGuardAddon.class)) {
+        for (Class<? extends Addon> clazz : Arrays.asList(TownyAddon.class, WorldGuardAddon.class)) {
             try {
-                addons.add(clazz.getDeclaredConstructor(JavaPlugin.class).newInstance(plugin);
+                addons.add(clazz.getDeclaredConstructor(JavaPlugin.class).newInstance(plugin));
             } catch (Throwable ignored) {}
         }
         addons.removeIf(x -> !x.isEnabled());
