@@ -17,7 +17,7 @@ public enum ConfigOptions {
     RIDING_BOAT_CHANCE("chanceModifiers.RIDING_BOAT"),
     RIDING_PIG_CHANCE("chanceModifiers.RIDING_PIG"),
     SPRINTING_BLOCK_BELOW_CHANCE("chanceModifiers.SPRINTING_BLOCK_BELOW"),
-    SPRINTING_BLOCK_AT_FEET_CHANCE("chanceModifiers.chanceModifiers.SPRINTING_BLOCK_AT_FEET"),
+    SPRINTING_BLOCK_AT_FEET_CHANCE("chanceModifiers.SPRINTING_BLOCK_AT_FEET"),
     BLOCK_BELOW_SWITCHER_LIST("blockModifications.blockBelowModifications"),
     BLOCK_AT_FEET_SWITCHER_LIST("blockModifications.blockAtFeetModifications"),
     PATHS_WHERE_ONLY_PLAYER_CAN_BREAK("townyModifiers.pathsOnlyWherePlayerCanBreak");
