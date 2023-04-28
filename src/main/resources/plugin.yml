@@ -9,5 +9,3 @@ softdepend:
 commands:
   desirepaths:
     description: Reload the configuration file for DesirePaths
-    usage: /desirepaths reload
-    permission: desirepaths.reload
