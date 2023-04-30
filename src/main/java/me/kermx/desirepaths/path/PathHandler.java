@@ -33,7 +33,7 @@ public class PathHandler implements Runnable {
 
             int chance = PathModifierType.getModifier(player).getChance();
             int randomNum = random.nextInt(100);
-            if (ConfigOptions.DISABLED_WORLDS.getValue(List.class).contains(player.getWorld().getName())) return;
+            if (ConfigOptions.DISABLED_WORLDS.getValue(List.class).contains(player.getWorld().getName())) continue;
 
             outer:
             for (Addon addon : Manager.get(AddonManager.class).getAddons()) {
