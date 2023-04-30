@@ -34,7 +34,7 @@ public enum ConfigOptions {
         try {
             boolean cached = cachedValues.containsKey(this);
             Object object = cached ? cachedValues.get(this) : DesirePaths.getInstance().getConfig().get(configOption);
-            T t = cached ? object : castType.cast(object);
+            T t = castType.cast(object);
             if (!cached) cachedValues.put(this, t);
             return t;
         } catch (ClassCastException e) {
