@@ -8,12 +8,14 @@ import org.bukkit.entity.Player;
 public class Utils {
 
     public static String color(String s) {
-        if (s == null) return "";
+        if (s == null) return null;
         
         return ChatColor.translateAlternateColorCodes('&', s);
     }
 
     public static void sendMessage(CommandSender sender, String s) {
+        if (s == null) return;
+        
         if (!(sender instanceof Player)) {
             Bukkit.getConsoleSender().sendMessage(color(s));
             return;
