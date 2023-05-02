@@ -33,7 +33,7 @@ public class PathHandler implements Runnable {
 
             int chance = PathModifierType.getModifier(player).getChance();
             int randomNum = random.nextInt(100);
-            if (ConfigOptions.DISABLED_WORLDS.getValue(List.class).contains(player.getWorld().getName())) return;
+            if (ConfigOptions.DISABLED_WORLDS.getValue(List.class).contains(player.getWorld().getName())) continue;
 
             outer:
             for (Addon addon : Manager.get(AddonManager.class).getAddons()) {
@@ -44,6 +44,7 @@ public class PathHandler implements Runnable {
                     ConfigOptions configOptions = i == 1 ? ConfigOptions.SPRINTING_BLOCK_AT_FEET_CHANCE : ConfigOptions.SPRINTING_BLOCK_BELOW_CHANCE;
                     if (!player.isSprinting() && randomNum < chance) {
                         blockSwitcher(block, (i == 1 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));
+                        continue;
                     }
                     if (player.isSprinting() && randomNum < chance + configOptions.getValue(Integer.class)) {
                         blockSwitcher(block, (i == 1 ? ConfigOptions.BLOCK_AT_FEET_SWITCHER_LIST : ConfigOptions.BLOCK_BELOW_SWITCHER_LIST).getValue(List.class));

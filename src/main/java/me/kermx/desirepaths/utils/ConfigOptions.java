@@ -32,9 +32,10 @@ public enum ConfigOptions {
 
     public <T> T getValue(Class<T> castType) {
         try {
-            Object object = cachedValues.containsKey(this) ? cachedValues.get(this) : DesirePaths.getInstance().getConfig().get(configOption);
+            boolean cached = cachedValues.containsKey(this);
+            Object object = cached ? cachedValues.get(this) : DesirePaths.getInstance().getConfig().get(configOption);
             T t = castType.cast(object);
-            cachedValues.put(this, t);
+            if (!cached) cachedValues.put(this, t);
             return t;
         } catch (ClassCastException e) {
             DesirePaths.getInstance().getLogger().severe("Invalid config option type! " + configOption + " is not a " + castType.getSimpleName() + "!");
