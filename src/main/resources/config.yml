@@ -8,6 +8,11 @@ attemptFrequency: 10
 disabledWorlds:
   - exampleworld
 
+## movementCheckEnabled determines if we should run an extra check to see if the player is currently moving.
+## Setting this to true means that unless a player is actively moving around we won't change the block below them.
+## This setting will have an impact on the plugin's performance, if you have issues you should set this to false.
+movementCheckEnabled: false
+
 ## chanceModifiers for block changes.
 ## Chances are out of 100.
 chanceModifiers:

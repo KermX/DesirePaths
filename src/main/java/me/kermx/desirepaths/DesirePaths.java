@@ -10,15 +10,19 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Horse;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public final class DesirePaths extends JavaPlugin {
+public final class DesirePaths extends JavaPlugin implements Listener {
 
     private List<String> disabledWorlds;
+    private boolean movementCheckEnabled;
     private int noBootsChance;
     private int leatherBootsChance;
     private int hasBootsChance;
@@ -34,7 +38,6 @@ public final class DesirePaths extends JavaPlugin {
 
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private enum modifierType{NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG}
-
     private WorldGuardIntegration worldGuardIntegration;
 
     private boolean townyEnabled;
@@ -51,6 +54,16 @@ public final class DesirePaths extends JavaPlugin {
         }
     }
 
+    //PlayerMoveEvent related stuff
+    private boolean playerHasMoved = false;
+    @EventHandler
+    private void onPlayerMove(PlayerMoveEvent event) {
+        if (!movementCheckEnabled) {
+            return;  // Do nothing if movementCheckEnabled is false
+        }
+        playerHasMoved = event.getFrom().getZ() != event.getTo().getZ() && event.getFrom().getX() != event.getTo().getX();
+    }
+
     @Override
     public void onEnable() {
         // Load config
@@ -60,6 +73,8 @@ public final class DesirePaths extends JavaPlugin {
         int attemptFrequency = getConfig().getInt("attemptFrequency");
         // initial config disabledWorlds list
         disabledWorlds = getConfig().getStringList("disabledWorlds");
+        // initial config movementCheckEnabled boolean
+        movementCheckEnabled = getConfig().getBoolean("movementCheckEnabled");
         // initial config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
@@ -79,12 +94,19 @@ public final class DesirePaths extends JavaPlugin {
         // initialize reload command
         Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new ReloadCommand(this));
 
+
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                if (movementCheckEnabled && playerHasMoved){
+                        playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                }else if (!movementCheckEnabled){
+                    playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                }
             }
         }, 0L, attemptFrequency);
+
+        getServer().getPluginManager().registerEvents(this,this);
         // check if towny & worldguard are installed
         townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
         worldGuardEnabled = Bukkit.getPluginManager().isPluginEnabled("WorldGuard");
@@ -103,6 +125,7 @@ public final class DesirePaths extends JavaPlugin {
         }
     }
 
+
     private void playerHandler(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance, int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig, List<String> blockBelowSwitcherConfig) {
         if (player.getGameMode() != GameMode.SURVIVAL || player.hasPermission("desirepaths.exempt"))
             return;
@@ -111,6 +134,7 @@ public final class DesirePaths extends JavaPlugin {
         Bukkit.getScheduler().runTask(this,()-> blockBelowHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance, randomNum, sprintingBlockBelowChance, blockBelowSwitcherConfig));
         Bukkit.getScheduler().runTask(this,()-> blockAtFeetHandler(player.getLocation().getBlock(),player, chance, randomNum, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig));
     }
+
     public static int getChance(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance) {
         return switch (getModifier(player)) {
             case RIDING_HORSE -> ridingHorseChance;
@@ -251,6 +275,8 @@ public final class DesirePaths extends JavaPlugin {
         reloadConfig();
         // config disabledWorlds list
         disabledWorlds = getConfig().getStringList("disabledWorlds");
+        // config movementCheckEnabled boolean
+        movementCheckEnabled = getConfig().getBoolean("movementCheckEnabled");
         // config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
