@@ -2,6 +2,9 @@ package me.kermx.desirepaths;
 
 import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import me.kermx.desirepaths.commands.DesirePathsCommand;
+import me.kermx.desirepaths.integrations.WorldGuardIntegration;
+import me.kermx.desirepaths.managers.ToggleManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -42,6 +45,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     private boolean townyEnabled;
     public boolean worldGuardEnabled;
+
+    private ToggleManager toggleManager;
 
     @Override
     public void onLoad() {
@@ -91,8 +96,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         // initial config townyModifiers booleans
         pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
 
-        // initialize reload command
-        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new ReloadCommand(this));
+        // initialize reload & toggle command
+        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new DesirePathsCommand(this));
+
+        // initialize togglemanager
+        toggleManager = new ToggleManager(this);
 
 
         // Plugin startup logic
@@ -128,6 +136,9 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     private void playerHandler(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance, int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance, int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig, List<String> blockBelowSwitcherConfig) {
         if (player.getGameMode() != GameMode.SURVIVAL || player.hasPermission("desirepaths.exempt"))
+            return;
+        boolean pathsToggledOff = !getToggleManager().getToggle(player.getUniqueId());
+        if (pathsToggledOff)
             return;
         int chance = getChance(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance);
         int randomNum = random.nextInt(100);
@@ -293,6 +304,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         // config townyModifiers booleans
         pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
     }
+
+    public ToggleManager getToggleManager(){
+        return toggleManager;
+    }
+
     @Override
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " DesirePaths Disabled");

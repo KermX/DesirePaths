@@ -1,4 +1,4 @@
-package me.kermx.desirepaths;
+package me.kermx.desirepaths.integrations;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
