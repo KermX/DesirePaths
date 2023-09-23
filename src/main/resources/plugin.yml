@@ -8,6 +8,5 @@ softdepend:
   - WorldGuard
 commands:
   desirepaths:
-    description: Reload the configuration file for DesirePaths
+    description: Base DesirePaths command
     usage: /desirepaths <arg>
-    permission: desirepaths.testperm
