@@ -1,3 +1,4 @@
+/*
 package me.kermx.desirepaths.managers;
 
 import me.kermx.desirepaths.DesirePaths;
@@ -31,4 +32,4 @@ public class SpeedBoostHandler implements Listener {
             }
         }
     }
-}
+} */

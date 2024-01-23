@@ -4,7 +4,7 @@ import com.palmergames.bukkit.towny.object.TownyPermission;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import me.kermx.desirepaths.commands.DesirePathsCommand;
 import me.kermx.desirepaths.integrations.WorldGuardIntegration;
-import me.kermx.desirepaths.managers.SpeedBoostHandler;
+//import me.kermx.desirepaths.managers.SpeedBoostHandler;
 import me.kermx.desirepaths.managers.ToggleManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -73,7 +73,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (!movementCheckEnabled) {
             return;  // Do nothing if movementCheckEnabled is false
         }
-        playerHasMoved = event.getFrom().getZ() != event.getTo().getZ() && event.getFrom().getX() != event.getTo().getX();
+
+        double deltaX = Math.abs(event.getFrom().getX() - event.getTo().getX());
+        double deltaZ = Math.abs(event.getFrom().getZ() - event.getTo().getZ());
+
+        playerHasMoved = deltaX > 0.1 || deltaZ > 0.1;
     }
 
     @Override
@@ -112,7 +116,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new DesirePathsCommand(this));
 
         // initialize the speedboosthandler
-        Bukkit.getPluginManager().registerEvents(new SpeedBoostHandler(this), this);
+        //Bukkit.getPluginManager().registerEvents(new SpeedBoostHandler(this), this);
 
         // initialize togglemanager
         toggleManager = new ToggleManager(this);
@@ -121,9 +125,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (movementCheckEnabled && playerHasMoved){
-                        playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
-                }else if (!movementCheckEnabled){
+                if (movementCheckEnabled && playerHasMoved) {
+                    playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                } else if (movementCheckEnabled) {
+                    return;
+                } else {
                     playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance, ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
                 }
             }

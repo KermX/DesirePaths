@@ -6,6 +6,7 @@ author: KermX
 softdepend:
   - Towny
   - WorldGuard
+  - Lands
 commands:
   desirepaths:
     description: Base DesirePaths command
