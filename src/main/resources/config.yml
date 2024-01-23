@@ -13,17 +13,6 @@ disabledWorlds:
 ## This setting will have an impact on the plugin's performance, if you have issues you should set this to false.
 movementCheckEnabled: false
 
-## speedBoostOnPaths is an extra addon that just makes it so that players receive a slight speed boost when walking path blocks
-## enabling this option might encourage your players to use the same paths more regularly.
-speedBoost:
-  enabled: false
-  ##boostedWalkSpeed is what the player's movement speed should be set as when they walk on the blocks you've specified.
-  ##minecraft's default walk speed is 0.2 after the player is no longer on your specified path blocks their speed will be reset to that.
-  ## value must be between 0 - 1
-  boostedWalkSpeed: 0.25
-  boostOnBlocks:
-    - DIRT_PATH
-
 ## chanceModifiers for block changes.
 ## Chances are out of 100.
 chanceModifiers:

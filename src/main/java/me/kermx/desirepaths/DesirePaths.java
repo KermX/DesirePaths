@@ -27,12 +27,6 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     private List<String> disabledWorlds;
     private boolean movementCheckEnabled;
-
-    //speed boost variables
-    public boolean speedBoostEnabled;
-    public double boostedWalkSpeed;
-    public float boostedWalkSpeedConverted;
-    public List<String> speedBoostBlocks;
     private int noBootsChance;
     private int leatherBootsChance;
     private int hasBootsChance;
@@ -91,11 +85,6 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         disabledWorlds = getConfig().getStringList("disabledWorlds");
         // initial config movementCheckEnabled boolean
         movementCheckEnabled = getConfig().getBoolean("movementCheckEnabled");
-        // initial config speedBoost values
-        speedBoostEnabled = getConfig().getBoolean("speedBoost.enabled");
-        boostedWalkSpeed = getConfig().getDouble("speedBoost.boostedWalkSpeed");
-        boostedWalkSpeedConverted = (float) boostedWalkSpeed;
-        speedBoostBlocks = getConfig().getStringList("speedBoost.boostOnBlocks");
         // initial config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
@@ -309,11 +298,6 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         disabledWorlds = getConfig().getStringList("disabledWorlds");
         // config movementCheckEnabled boolean
         movementCheckEnabled = getConfig().getBoolean("movementCheckEnabled");
-        // config speedBoost values
-        speedBoostEnabled = getConfig().getBoolean("speedBoost.enabled");
-        boostedWalkSpeed = getConfig().getDouble("speedBoost.speedMultiplier");
-        boostedWalkSpeedConverted = (float) boostedWalkSpeed;
-        speedBoostBlocks = getConfig().getStringList("speedBoost.boostOnBlocks");
         // config chanceModifier values
         noBootsChance = getConfig().getInt("chanceModifiers.NO_BOOTS");
         leatherBootsChance = getConfig().getInt("chanceModifiers.LEATHER_BOOTS");
