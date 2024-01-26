@@ -64,6 +64,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     public boolean worldGuardEnabled;
 
     private ToggleManager toggleManager;
+    DesirePathsCommand desirePathsCommand = new DesirePathsCommand(this);
 
     @Override
     public void onLoad() {
@@ -100,7 +101,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         loadConfig();
 
         // initialize reload & toggle command
-        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(new DesirePathsCommand(this));
+        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(desirePathsCommand);
+        Objects.requireNonNull(getCommand("desirepaths")).setTabCompleter(desirePathsCommand);
 
         // initialize the speedboosthandler
         // Bukkit.getPluginManager().registerEvents(new SpeedBoostHandler(this), this);
@@ -161,7 +163,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTask(this,
                 () -> blockHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance,
                         randomNum, sprintingBlockBelowChance, blockBelowSwitcherConfig));
-        Bukkit.getScheduler().runTask(this, () -> blockHandler(player.getLocation().getBlock(), player, chance,
+        Bukkit.getScheduler().runTask(this,
+                () -> blockHandler(player.getLocation().getBlock(), player, chance,
                 randomNum, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig));
     }
 

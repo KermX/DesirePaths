@@ -8,6 +8,9 @@ attemptFrequency: 10
 disabledWorlds:
   - exampleworld
 
+# Flag to enable / disable desire paths in Creative mode
+enableInCreativeMode: true
+
 ## movementCheckEnabled determines if we should run an extra check to see if the player is currently moving.
 ## Setting this to true means that unless a player is actively moving around we won't change the block below them.
 ## This setting will have an impact on the plugin's performance, if you have issues you should set this to false.
@@ -55,6 +58,3 @@ blockModifications:
 ## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
 townyModifiers:
   pathsOnlyWherePlayerCanBreak: true
-  
-# Flag to enable / disable desire paths in Creative mode
-enableInCreativeMode: true

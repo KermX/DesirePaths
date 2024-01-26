@@ -1,5 +1,7 @@
 package me.kermx.desirepaths.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -7,11 +9,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import me.kermx.desirepaths.DesirePaths;
 
-public class DesirePathsCommand implements CommandExecutor {
+public class DesirePathsCommand implements CommandExecutor, TabCompleter {
 
     private final DesirePaths plugin;
 
@@ -64,5 +67,24 @@ public class DesirePathsCommand implements CommandExecutor {
         }
         sender.sendMessage(ChatColor.RED + "Incorrect Usage!");
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (cmd.getName().equalsIgnoreCase("desirepaths")) {
+            if (args.length == 1) {
+                // Autocomplete for the first argument (subcommands)
+                completions.add("reload");
+                completions.add("toggle");
+            } else if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
+                // Autocomplete for the second argument when the first argument is "toggle"
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    completions.add(onlinePlayer.getName());
+                }
+            }
+        }
+        return completions;
     }
 }
