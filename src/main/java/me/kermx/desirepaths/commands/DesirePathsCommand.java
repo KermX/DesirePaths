@@ -65,7 +65,7 @@ public class DesirePathsCommand implements CommandExecutor, TabCompleter {
                 }
             }
         }
-        sender.sendMessage(ChatColor.RED + "Incorrect Usage!");
+        sender.sendMessage(ChatColor.RED + "Incorrect Usage! Try: /desirepaths <reload|toggle> [player]");
         return false;
     }
 
@@ -75,13 +75,19 @@ public class DesirePathsCommand implements CommandExecutor, TabCompleter {
 
         if (cmd.getName().equalsIgnoreCase("desirepaths")) {
             if (args.length == 1) {
-                // Autocomplete for the first argument (subcommands)
-                completions.add("reload");
-                completions.add("toggle");
+                // Autocomplete for the first argument if the sender has permission
+                if (sender.hasPermission("desirepaths.reload")) {
+                    completions.add("reload");
+                }
+                if (sender.hasPermission("desirepaths.toggle")) {
+                    completions.add("toggle");
+                }
             } else if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
-                // Autocomplete for the second argument when the first argument is "toggle"
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    completions.add(onlinePlayer.getName());
+                // Autocomplete second argument when the first argument is "toggle"
+                if (sender.hasPermission("desirepaths.toggle")) {
+                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                        completions.add(onlinePlayer.getName());
+                    }
                 }
             }
         }
