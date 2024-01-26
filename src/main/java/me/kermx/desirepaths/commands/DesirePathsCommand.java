@@ -1,11 +1,15 @@
 package me.kermx.desirepaths.commands;
 
-import me.kermx.desirepaths.DesirePaths;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import me.kermx.desirepaths.DesirePaths;
 
 public class DesirePathsCommand implements CommandExecutor {
 
@@ -33,13 +37,27 @@ public class DesirePathsCommand implements CommandExecutor {
                 }
                 if (sender.hasPermission("desirepaths.toggle")) {
                     Player player = (Player) sender;
-                    boolean currentToggle = plugin.getToggleManager().getToggle(player.getUniqueId());
-                    boolean newToggle = !currentToggle;
-
-                    plugin.getToggleManager().setToggle(player.getUniqueId(), newToggle);
+                    boolean newToggle = plugin.getToggleManager().toggle(player.getUniqueId());
 
                     String toggleStatus = newToggle ? "on" : "off";
                     player.sendMessage(ChatColor.GREEN + "DesirePaths toggled " + toggleStatus + "!");
+                    return true;
+                }
+            }
+            // Handle console command to toggle players by name
+            if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
+                if (!(sender instanceof Player)) {
+                    String playerName = args[1];
+                    Player togglePlayer = Bukkit.getPlayer(playerName);
+                    if (togglePlayer != null) {
+                        UUID playerId = togglePlayer.getUniqueId();
+                        boolean newToggle = plugin.getToggleManager().toggle(playerId);
+
+                        String toggleStatus = newToggle ? "on" : "off";
+                        sender.sendMessage(ChatColor.GREEN + "DesirePaths toggled " + toggleStatus + "!");
+                    } else {
+                        sender.sendMessage(ChatColor.GREEN + "Unable to find online player with name: " + playerName);
+                    }
                     return true;
                 }
             }

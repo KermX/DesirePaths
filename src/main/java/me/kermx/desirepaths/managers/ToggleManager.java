@@ -1,14 +1,15 @@
 package me.kermx.desirepaths.managers;
 
-import me.kermx.desirepaths.DesirePaths;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import me.kermx.desirepaths.DesirePaths;
 
 public class ToggleManager {
 
@@ -42,6 +43,13 @@ public class ToggleManager {
             boolean toggleState = toggleDataConfig.getBoolean(playerIdString);
             toggleMap.put(playerId, toggleState);
         }
+    }
+
+    public boolean toggle(UUID playerId) {
+        boolean currentToggle = getToggle(playerId);
+        boolean newToggle = !currentToggle;
+        setToggle(playerId, newToggle);
+        return newToggle;
     }
 
     private void saveToggleData() {
