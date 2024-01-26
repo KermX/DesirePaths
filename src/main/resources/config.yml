@@ -36,9 +36,9 @@ blockModifications:
 ## Blocks at the same level as the player's feet
   blockAtFeetModifications:
     - SNOW:AIR
-    - GRASS:AIR
+    - SHORT_GRASS:AIR
     - FERN:AIR
-    - TALL_GRASS:GRASS
+    - TALL_GRASS:SHORT_GRASS
 ## Blocks below that the player is standing on
   blockBelowModifications:
     - GRASS_BLOCK:DIRT
@@ -55,3 +55,6 @@ blockModifications:
 ## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
 townyModifiers:
   pathsOnlyWherePlayerCanBreak: true
+  
+# Flag to enable / disable desire paths in Creative mode
+enableInCreativeMode: true
