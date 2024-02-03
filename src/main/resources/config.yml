@@ -19,6 +19,7 @@ movementCheckEnabled: false
 ## chanceModifiers for block changes.
 ## Chances are out of 100.
 chanceModifiers:
+## RIDING_HORSE includes camels, llamas, mules, donkeys, and horses
   RIDING_HORSE: 37
   RIDING_BOAT: 99
   RIDING_PIG: 30

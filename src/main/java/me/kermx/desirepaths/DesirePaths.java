@@ -16,10 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -183,7 +180,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     // determine modifier to use for chance
     private static modifierType getModifier(Player player) {
-        if (player.getVehicle() instanceof Horse)
+        if (player.getVehicle() instanceof AbstractHorse)
             return modifierType.RIDING_HORSE;
         if (player.getVehicle() instanceof Boat)
             return modifierType.RIDING_BOAT;
