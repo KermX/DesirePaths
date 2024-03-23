@@ -1,18 +1,10 @@
 package me.kermx.desirepaths;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import me.kermx.desirepaths.integrations.LandsPathIntegration;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
@@ -28,7 +20,6 @@ import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 
 import me.kermx.desirepaths.commands.DesirePathsCommand;
 import me.kermx.desirepaths.integrations.WorldGuardIntegration;
-//import me.kermx.desirepaths.managers.SpeedBoostHandler;
 import me.kermx.desirepaths.managers.ToggleManager;
 
 public final class DesirePaths extends JavaPlugin implements Listener {
@@ -47,6 +38,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     private List<String> blockBelowSwitcherConfig;
     private List<String> blockAtFeetSwitcherConfig;
     private boolean pathsOnlyWherePlayerCanBreak;
+    public boolean displayFlag;
+    public String flagDisplayName;
+    public String flagDisplayDescription;
+    public String flagDisplayMaterial;
+    public boolean defaultFlagState;
     private boolean enableInCreativeMode;
 
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -56,20 +52,35 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     }
 
     private WorldGuardIntegration worldGuardIntegration;
+    private LandsPathIntegration landsPathIntegration;
 
     private boolean townyEnabled;
     public boolean worldGuardEnabled;
+
+    public boolean landsEnabled;
 
     private ToggleManager toggleManager;
     DesirePathsCommand desirePathsCommand = new DesirePathsCommand(this);
 
     @Override
     public void onLoad() {
+        saveDefaultConfig();
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+        loadConfig();
+
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
             try {
                 worldGuardIntegration = new WorldGuardIntegration();
                 worldGuardIntegration.preloadWorldGuardIntegration();
             } catch (NoClassDefFoundError ignored) {
+            }
+        }
+        if (Bukkit.getPluginManager().getPlugin("Lands") != null){
+            try {
+                landsPathIntegration = new LandsPathIntegration(this);
+                landsPathIntegration.loadLandsIntegration();
+            } catch (NoClassDefFoundError ignored){
             }
         }
     }
@@ -91,18 +102,10 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        // Load config
-        saveDefaultConfig();
-        getConfig().options().copyDefaults(true);
-        saveConfig();
-        loadConfig();
 
         // initialize reload & toggle command
         Objects.requireNonNull(getCommand("desirepaths")).setExecutor(desirePathsCommand);
         Objects.requireNonNull(getCommand("desirepaths")).setTabCompleter(desirePathsCommand);
-
-        // initialize the speedboosthandler
-        // Bukkit.getPluginManager().registerEvents(new SpeedBoostHandler(this), this);
 
         // initialize togglemanager
         toggleManager = new ToggleManager(this);
@@ -140,6 +143,12 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (worldGuardEnabled) {
             Bukkit.getConsoleSender().sendMessage(
                     ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-WorldGuard integration successful");
+        }
+
+        landsEnabled = Bukkit.getPluginManager().isPluginEnabled("Lands");
+        if (landsEnabled) {
+            Bukkit.getConsoleSender().sendMessage(
+                    ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Lands integration successful");
         }
     }
 
@@ -218,6 +227,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
                 return;
             }
         }
+        if (landsEnabled) {
+            if (landsPathIntegration.checkFlag(player)){
+                return;
+            }
+        }
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
             if (!player.isSprinting() && randomNum < chance) {
@@ -283,6 +297,12 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
         // initial config townyModifiers booleans
         pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
+        // initial config landsIntegration settings
+        displayFlag = getConfig().getBoolean("landsIntegrations.displayFlag");
+        flagDisplayName = getConfig().getString("landsIntegrations.flagDisplayName");
+        flagDisplayDescription = getConfig().getString("landsIntegrations.flagDisplayDescription");
+        flagDisplayMaterial = getConfig().getString("landsIntegrations.flagDisplayMaterial");
+        defaultFlagState = getConfig().getBoolean("landsIntegrations.defaultFlagState");
 
         enableInCreativeMode = getConfig().getBoolean("enableInCreativeMode");
     }

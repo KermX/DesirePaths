@@ -55,7 +55,15 @@ blockModifications:
     - MYCELIUM:ROOTED_DIRT
     - MAGMA_BLOCK:LAVA
 
+
 ## Only relevant if Towny is installed
 ## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
 townyModifiers:
   pathsOnlyWherePlayerCanBreak: true
+
+landsIntegrations:
+  displayFlag: true
+  flagDisplayName: "Desire Paths"
+  flagDisplayDescription: "Allow this role to create paths?"
+  flagDisplayMaterial: "DIRT_PATH"
+  defaultFlagState: true
