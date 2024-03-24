@@ -6,7 +6,7 @@
 
     <groupId>me.kermx</groupId>
     <artifactId>DesirePaths</artifactId>
-    <version>1.6</version>
+    <version>1.7-b1</version>
     <packaging>jar</packaging>
 
     <name>DesirePaths</name>
@@ -69,6 +69,10 @@
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
+        <repository>
+            <id>coreprotect-repo</id>
+            <url>https://maven.playpro.com</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -94,6 +98,12 @@
             <groupId>com.github.angeschossen</groupId>
             <artifactId>LandsAPI</artifactId>
             <version>6.44.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.coreprotect</groupId>
+            <artifactId>coreprotect</artifactId>
+            <version>21.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

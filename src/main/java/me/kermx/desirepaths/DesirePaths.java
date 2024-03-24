@@ -3,6 +3,7 @@ package me.kermx.desirepaths;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import me.kermx.desirepaths.integrations.CoreProtectIntegration;
 import me.kermx.desirepaths.integrations.LandsPathIntegration;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -43,6 +44,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     public String flagDisplayDescription;
     public String flagDisplayMaterial;
     public boolean defaultFlagState;
+    public boolean logPathsToCoreProtect;
     private boolean enableInCreativeMode;
 
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -53,11 +55,12 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     private WorldGuardIntegration worldGuardIntegration;
     private LandsPathIntegration landsPathIntegration;
+    private CoreProtectIntegration coreProtectIntegration;
 
     private boolean townyEnabled;
     public boolean worldGuardEnabled;
-
     public boolean landsEnabled;
+    public boolean coreProtectEnabled;
 
     private ToggleManager toggleManager;
     DesirePathsCommand desirePathsCommand = new DesirePathsCommand(this);
@@ -110,6 +113,13 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         // initialize togglemanager
         toggleManager = new ToggleManager(this);
 
+        // initialize coreprotect integration
+        if (Bukkit.getPluginManager().getPlugin("CoreProtect") != null)
+            try {
+                coreProtectIntegration = new CoreProtectIntegration(this);
+            } catch (NoClassDefFoundError ignored){
+            }
+
         // Plugin startup logic
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -130,7 +140,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
 
         Bukkit.getConsoleSender()
-                .sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths enabled successfully");
+                .sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths " + getDescription().getVersion() + " enabled successfully");
 
         // check if towny & worldguard are installed
         townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
@@ -149,6 +159,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (landsEnabled) {
             Bukkit.getConsoleSender().sendMessage(
                     ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Lands integration successful");
+        }
+        coreProtectEnabled = Bukkit.getPluginManager().isPluginEnabled("CoreProtect");
+        if (coreProtectEnabled && coreProtectIntegration.getAPI() != null){
+                Bukkit.getConsoleSender()
+                        .sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-CoreProtect integration successful");
         }
     }
 
@@ -235,10 +250,10 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
             if (!player.isSprinting() && randomNum < chance) {
-                blockSwitcher(block, switcherConfig);
+                blockSwitcher(block, switcherConfig, player);
             }
             if (player.isSprinting() && randomNum < chance + sprintingChance) {
-                blockSwitcher(block, switcherConfig);
+                blockSwitcher(block, switcherConfig, player);
             }
         } else {
             // Run if towny is enabled and canBuild is true
@@ -246,16 +261,16 @@ public final class DesirePaths extends JavaPlugin implements Listener {
                     TownyPermission.ActionType.DESTROY);
             if (canBuild) {
                 if (!player.isSprinting() && randomNum < chance) {
-                    blockSwitcher(block, switcherConfig);
+                    blockSwitcher(block, switcherConfig, player);
                 }
                 if (player.isSprinting() && randomNum < chance + sprintingChance) {
-                    blockSwitcher(block, switcherConfig);
+                    blockSwitcher(block, switcherConfig, player);
                 }
             }
         }
     }
 
-    private void blockSwitcher(Block block, List<String> switcherConfig) {
+    private void blockSwitcher(Block block, List<String> switcherConfig, Player player) {
         Material type = block.getType();
         Map<Material, Material> blockSwitcher = new HashMap<>();
         for (String switchCase : switcherConfig) {
@@ -272,6 +287,13 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         Material targetMaterial = blockSwitcher.get(type);
         if (targetMaterial != null) {
             block.setType(targetMaterial);
+            //coreprotect logging
+            if (block.getType() == targetMaterial){
+                if (coreProtectEnabled && logPathsToCoreProtect){
+                    coreProtectIntegration.logPathChangesToCoreProtectRemoval(player, block.getLocation(), type, block.getBlockData());
+                    coreProtectIntegration.logPathChangesToCoreProtectPlacement(player, block.getLocation(), targetMaterial, block.getBlockData());
+                }
+            }
         }
     }
 
@@ -303,6 +325,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         flagDisplayDescription = getConfig().getString("landsIntegrations.flagDisplayDescription");
         flagDisplayMaterial = getConfig().getString("landsIntegrations.flagDisplayMaterial");
         defaultFlagState = getConfig().getBoolean("landsIntegrations.defaultFlagState");
+        // initial config coreProtectIntegration booleans
+        logPathsToCoreProtect = getConfig().getBoolean("coreProtectIntegrations.logPathsToCoreProtect");
 
         enableInCreativeMode = getConfig().getBoolean("enableInCreativeMode");
     }

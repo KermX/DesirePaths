@@ -7,6 +7,7 @@ softdepend:
   - Towny
   - WorldGuard
   - Lands
+  - CoreProtect
 commands:
   desirepaths:
     description: Base DesirePaths command

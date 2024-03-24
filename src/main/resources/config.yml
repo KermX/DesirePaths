@@ -61,9 +61,17 @@ blockModifications:
 townyModifiers:
   pathsOnlyWherePlayerCanBreak: true
 
+## Only relevant if Lands is installed
+## Controls settings for the DESIRE_PATHS flag
+## DESIRE_PATHS is a role flag meaning you can set it for individual roles
 landsIntegrations:
   displayFlag: true
   flagDisplayName: "Desire Paths"
   flagDisplayDescription: "Allow this role to create paths?"
   flagDisplayMaterial: "DIRT_PATH"
   defaultFlagState: true
+
+## Only relevant if CoreProtect is installed
+## Controls if paths should be logged to CoreProtect.
+coreProtectIntegrations:
+  logPathsToCoreProtect: true
