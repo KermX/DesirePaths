@@ -65,6 +65,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     private ToggleManager toggleManager;
     DesirePathsCommand desirePathsCommand = new DesirePathsCommand(this);
 
+    //add modifier for crouching
+
     @Override
     public void onLoad() {
         saveDefaultConfig();
@@ -100,7 +102,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         double deltaX = Math.abs(event.getFrom().getX() - event.getTo().getX());
         double deltaZ = Math.abs(event.getFrom().getZ() - event.getTo().getZ());
 
-        playerHasMoved = deltaX > 0.1 || deltaZ > 0.1;
+        playerHasMoved = deltaX > 0.01 || deltaZ > 0.01;
     }
 
     @Override

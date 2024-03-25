@@ -27,9 +27,6 @@ public class WorldGuardIntegration {
         return state != StateFlag.State.ALLOW;
     }
 
-
-
-
     public void registerFlag() {
         FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
         try {

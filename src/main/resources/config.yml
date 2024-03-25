@@ -74,4 +74,4 @@ landsIntegrations:
 ## Only relevant if CoreProtect is installed
 ## Controls if paths should be logged to CoreProtect.
 coreProtectIntegrations:
-  logPathsToCoreProtect: true
+  logPathsToCoreProtect: false
