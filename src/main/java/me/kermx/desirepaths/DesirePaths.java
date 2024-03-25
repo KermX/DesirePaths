@@ -67,8 +67,6 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     private ToggleManager toggleManager;
     DesirePathsCommand desirePathsCommand = new DesirePathsCommand(this);
 
-    //add modifier for crouching
-
     @Override
     public void onLoad() {
         saveDefaultConfig();
