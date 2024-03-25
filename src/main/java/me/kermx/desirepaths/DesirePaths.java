@@ -35,6 +35,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     private int ridingPigChance;
     private int sprintingBlockBelowChance;
     private int sprintingBlockAtFeetChance;
+    private int crouchingBlockBelowChance;
+    private int crouchingBlockAtFeetChance;
     private int attemptFrequency;
     private List<String> blockBelowSwitcherConfig;
     private List<String> blockAtFeetSwitcherConfig;
@@ -128,13 +130,15 @@ public final class DesirePaths extends JavaPlugin implements Listener {
                 if (movementCheckEnabled && playerHasMoved) {
                     playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance,
                             ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance,
-                            sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                            sprintingBlockAtFeetChance, crouchingBlockBelowChance, crouchingBlockAtFeetChance,
+                            blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
                 } else if (movementCheckEnabled) {
                     return;
                 } else {
                     playerHandler(player, noBootsChance, leatherBootsChance, hasBootsChance, featherFallingChance,
                             ridingHorseChance, ridingBoatChance, ridingPigChance, sprintingBlockBelowChance,
-                            sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
+                            sprintingBlockAtFeetChance, crouchingBlockBelowChance, crouchingBlockAtFeetChance,
+                            blockAtFeetSwitcherConfig, blockBelowSwitcherConfig);
                 }
             }
         }, 0L, attemptFrequency);
@@ -170,9 +174,9 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     }
 
     private void playerHandler(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance,
-            int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance,
-            int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig,
-            List<String> blockBelowSwitcherConfig) {
+                               int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance,
+                               int sprintingBlockBelowChance, int sprintingBlockAtFeetChance, int crouchingBlockBelowChance,
+                               int crouchingBlockAtFeetChance, List<String> blockAtFeetSwitcherConfig, List<String> blockBelowSwitcherConfig) {
         if (player.getGameMode() != GameMode.SURVIVAL && !enableInCreativeMode) {
             return;
         }
@@ -185,10 +189,10 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         int randomNum = random.nextInt(100);
         Bukkit.getScheduler().runTask(this,
                 () -> blockHandler(player.getLocation().getBlock().getRelative(BlockFace.DOWN), player, chance,
-                        randomNum, sprintingBlockBelowChance, blockBelowSwitcherConfig));
+                        randomNum, sprintingBlockBelowChance, crouchingBlockBelowChance, blockBelowSwitcherConfig));
         Bukkit.getScheduler().runTask(this,
                 () -> blockHandler(player.getLocation().getBlock(), player, chance,
-                randomNum, sprintingBlockAtFeetChance, blockAtFeetSwitcherConfig));
+                randomNum, sprintingBlockAtFeetChance, crouchingBlockAtFeetChance, blockAtFeetSwitcherConfig));
     }
 
     public static int getChance(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance,
@@ -235,7 +239,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     // Handle block at the players feet
     private void blockHandler(Block block, Player player, int chance, int randomNum, int sprintingChance,
-            List<String> switcherConfig) {
+                              int crouchingChance, List<String> switcherConfig) {
         if (disabledWorlds.contains(player.getWorld().getName())) {
             return;
         }
@@ -251,10 +255,13 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         }
         if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
             // Run towny not enabled
-            if (!player.isSprinting() && randomNum < chance) {
+            if (!player.isSprinting() && !player.isSneaking() && randomNum < chance) {
                 blockSwitcher(block, switcherConfig, player);
             }
             if (player.isSprinting() && randomNum < chance + sprintingChance) {
+                blockSwitcher(block, switcherConfig, player);
+            }
+            if (player.isSneaking() && randomNum < chance + crouchingChance){
                 blockSwitcher(block, switcherConfig, player);
             }
         } else {
@@ -262,10 +269,13 @@ public final class DesirePaths extends JavaPlugin implements Listener {
             boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(),
                     TownyPermission.ActionType.DESTROY);
             if (canBuild) {
-                if (!player.isSprinting() && randomNum < chance) {
+                if (!player.isSprinting() && !player.isSneaking() && randomNum < chance) {
                     blockSwitcher(block, switcherConfig, player);
                 }
                 if (player.isSprinting() && randomNum < chance + sprintingChance) {
+                    blockSwitcher(block, switcherConfig, player);
+                }
+                if (player.isSneaking() && randomNum < chance + crouchingChance){
                     blockSwitcher(block, switcherConfig, player);
                 }
             }
@@ -316,6 +326,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         ridingPigChance = getConfig().getInt("chanceModifiers.RIDING_PIG");
         sprintingBlockBelowChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_BELOW");
         sprintingBlockAtFeetChance = getConfig().getInt("chanceModifiers.SPRINTING_BLOCK_AT_FEET");
+        crouchingBlockBelowChance = getConfig().getInt("chanceModifiers.CROUCHING_BLOCK_BELOW");
+        crouchingBlockAtFeetChance = getConfig().getInt("chanceModifiers.CROUCHING_BLOCK_AT_FEET");
         // initial config blockModifications lists
         blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
         blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
