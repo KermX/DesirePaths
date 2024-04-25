@@ -27,6 +27,10 @@ chanceModifiers:
   HAS_BOOTS: 20
   LEATHER_BOOTS: 11
   NO_BOOTS: 3
+
+## additiveModifiers are added to chance from the chanceModifiers.
+## If chance is > 100 a block modification will happen every attemptFrequency
+additiveModifiers:
 ## SPRINTING_BLOCK_BELOW and SPRINTING_BLOCK_AT_FEET are added to the chance from the other modifiers.
 ## They are only added when the player is sprinting.
   SPRINTING_BLOCK_BELOW: 13
@@ -36,6 +40,10 @@ chanceModifiers:
 ## They are only added when the player is crouching.
   CROUCHING_BLOCK_BELOW: -10
   CROUCHING_BLOCK_AT_FEET: -100
+## CLEAR_WEATHER and RAIN_WEATHER are added to chance from the other modifiers.
+## COME BACK TO IMPLEMENT LATER
+  CLEAR_WEATHER: 0
+  RAIN_WEATHER: 5
 
 ## blockModifications are how DesirePaths knows which blocks to check for as well as what blocks they should turn into
 ## ex. Dirt turns into Diamond Blocks -> DIRT:DIAMOND_BLOCK
@@ -60,10 +68,10 @@ blockModifications:
     - MYCELIUM:ROOTED_DIRT
     - MAGMA_BLOCK:LAVA
 
-
 ## Only relevant if Towny is installed
 ## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
 townyModifiers:
+  pathsInWilderness: true
   pathsOnlyWherePlayerCanBreak: true
 
 ## Only relevant if Lands is installed
@@ -75,6 +83,12 @@ landsIntegrations:
   flagDisplayDescription: "Allow this role to create paths?"
   flagDisplayMaterial: "DIRT_PATH"
   defaultFlagState: true
+
+## Only relevant if GriefPrevention is installed
+## Controls if paths can be made anywhere or only in locations where the player is allowed to break blocks
+griefPreventionIntegration:
+  pathsInWilderness: true
+  pathsOnlyWherePlayerCanBreak: true
 
 ## Only relevant if CoreProtect is installed
 ## Controls if paths should be logged to CoreProtect.

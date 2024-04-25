@@ -6,7 +6,7 @@
 
     <groupId>me.kermx</groupId>
     <artifactId>DesirePaths</artifactId>
-    <version>1.7-b3</version>
+    <version>1.9</version>
     <packaging>jar</packaging>
 
     <name>DesirePaths</name>
@@ -98,6 +98,12 @@
             <groupId>com.github.angeschossen</groupId>
             <artifactId>LandsAPI</artifactId>
             <version>6.44.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.GriefPrevention</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.18.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -15,6 +15,7 @@ public class ToggleManager {
 
     private final DesirePaths plugin;
     private final Map<UUID, Boolean> toggleMap = new HashMap<>();
+    private boolean maintenanceMode;
     private File toggleDataFile;
     private FileConfiguration toggleDataConfig;
 
@@ -25,6 +26,9 @@ public class ToggleManager {
         // Load toggle states from the toggleData.yml file
         this.toggleDataConfig = YamlConfiguration.loadConfiguration(toggleDataFile);
         loadTogglesFromConfig();
+
+        // Load maintenance mode from the toggleData.yml file
+        this.maintenanceMode = toggleDataConfig.getBoolean("maintenanceMode", false);
     }
 
     public boolean getToggle(UUID playerId) {
@@ -34,6 +38,16 @@ public class ToggleManager {
     public void setToggle(UUID playerId, boolean toggle) {
         toggleMap.put(playerId, toggle);
         toggleDataConfig.set(playerId.toString(), toggle);
+        saveToggleData();
+    }
+
+    public boolean getMaintenanceMode(){
+        return maintenanceMode;
+    }
+
+    public void setMaintenanceMode(boolean maintenanceMode){
+        this.maintenanceMode = maintenanceMode;
+        toggleDataConfig.set("maintenanceMode", maintenanceMode);
         saveToggleData();
     }
 

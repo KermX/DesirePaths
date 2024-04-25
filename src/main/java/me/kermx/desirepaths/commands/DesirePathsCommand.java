@@ -64,6 +64,16 @@ public class DesirePathsCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
             }
+            // Handle maintenance command to toggle paths for all players
+            if (args.length == 1 && args[0].equalsIgnoreCase("maintenance")){
+                if (sender.hasPermission("desirepaths.maintenance")){
+                    boolean maintenanceMode = plugin.getToggleManager().getMaintenanceMode();
+                    plugin.getToggleManager().setMaintenanceMode(!maintenanceMode);
+                    String maintenanceStatus = maintenanceMode ? "off" : "on";
+                    sender.sendMessage(ChatColor.GREEN + "Maintenance mode toggled " + maintenanceStatus + "!");
+                    return true;
+                }
+            }
         }
         sender.sendMessage(ChatColor.RED + "Incorrect Usage! Try: /desirepaths <reload|toggle> [player]");
         return false;
@@ -81,6 +91,9 @@ public class DesirePathsCommand implements CommandExecutor, TabCompleter {
                 }
                 if (sender.hasPermission("desirepaths.toggle")) {
                     completions.add("toggle");
+                }
+                if (sender.hasPermission("desirepaths.maintenance")){
+                    completions.add("maintenance");
                 }
             } else if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
                 // Autocomplete second argument when the first argument is "toggle"

@@ -1,27 +1,38 @@
 package me.kermx.desirepaths;
 
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-
-import me.kermx.desirepaths.integrations.CoreProtectIntegration;
-import me.kermx.desirepaths.integrations.LandsPathIntegration;
-import org.bukkit.*;
+import com.palmergames.bukkit.towny.object.TownyPermission;
+import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import me.kermx.desirepaths.commands.DesirePathsCommand;
+import me.kermx.desirepaths.integrations.*;
+import me.kermx.desirepaths.managers.ToggleManager;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Boat;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.palmergames.bukkit.towny.object.TownyPermission;
-import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-import me.kermx.desirepaths.commands.DesirePathsCommand;
-import me.kermx.desirepaths.integrations.WorldGuardIntegration;
-import me.kermx.desirepaths.managers.ToggleManager;
+// new features:
+// speed boost when walking on paths
+// papi placeholders, %desirepaths_toggle_status%, %desirepaths_maintenance_status%
+// weather chance modifiers
+// different block switch based on weather
+// different block switch and/or biome chance modifiers
+// itemsadder blocks?
+
 
 public final class DesirePaths extends JavaPlugin implements Listener {
     private List<String> disabledWorlds;
@@ -40,7 +51,10 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     private int attemptFrequency;
     private List<String> blockBelowSwitcherConfig;
     private List<String> blockAtFeetSwitcherConfig;
-    private boolean pathsOnlyWherePlayerCanBreak;
+    public boolean pathsOnlyWherePlayerCanBreakTowny;
+    public boolean pathsInWildernessTowny;
+    public boolean pathsOnlyWherePlayerCanBreakGriefPrevention;
+    public boolean pathsInWildernessGriefPrevention;
     public boolean displayFlag;
     public String flagDisplayName;
     public String flagDisplayDescription;
@@ -55,13 +69,16 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         NO_BOOTS, LEATHER_BOOTS, HAS_BOOTS, FEATHER_FALLING, RIDING_HORSE, RIDING_BOAT, RIDING_PIG
     }
 
+    private TownyIntegration townyIntegration;
     private WorldGuardIntegration worldGuardIntegration;
     private LandsPathIntegration landsPathIntegration;
+    private GriefPreventionIntegration griefPreventionIntegration;
     private CoreProtectIntegration coreProtectIntegration;
 
-    private boolean townyEnabled;
+    public boolean townyEnabled;
     public boolean worldGuardEnabled;
     public boolean landsEnabled;
+    public boolean griefPreventionEnabled;
     public boolean coreProtectEnabled;
 
     private ToggleManager toggleManager;
@@ -74,6 +91,12 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         saveConfig();
         loadConfig();
 
+        if (Bukkit.getPluginManager().getPlugin("Towny") != null){
+            try {
+                townyIntegration = new TownyIntegration(this);
+            } catch (NoClassDefFoundError ignored){
+            }
+        }
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
             try {
                 worldGuardIntegration = new WorldGuardIntegration();
@@ -85,6 +108,12 @@ public final class DesirePaths extends JavaPlugin implements Listener {
             try {
                 landsPathIntegration = new LandsPathIntegration(this);
                 landsPathIntegration.loadLandsIntegration();
+            } catch (NoClassDefFoundError ignored){
+            }
+        }
+        if (Bukkit.getPluginManager().getPlugin("GriefPrevention") != null){
+            try {
+                griefPreventionIntegration = new GriefPreventionIntegration(this);
             } catch (NoClassDefFoundError ignored){
             }
         }
@@ -146,7 +175,6 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         Bukkit.getConsoleSender()
                 .sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths " + getDescription().getVersion() + " enabled successfully");
 
-        // check if towny & worldguard are installed
         townyEnabled = Bukkit.getPluginManager().isPluginEnabled("Towny");
         if (townyEnabled) {
             Bukkit.getConsoleSender()
@@ -164,6 +192,12 @@ public final class DesirePaths extends JavaPlugin implements Listener {
             Bukkit.getConsoleSender().sendMessage(
                     ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-Lands integration successful");
         }
+
+        griefPreventionEnabled = Bukkit.getPluginManager().isPluginEnabled("GriefPrevention");
+        if (griefPreventionEnabled){
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-GriefPrevention integration successful");
+        }
+
         coreProtectEnabled = Bukkit.getPluginManager().isPluginEnabled("CoreProtect");
         if (coreProtectEnabled && coreProtectIntegration.getAPI() != null){
                 Bukkit.getConsoleSender()
@@ -238,6 +272,9 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     // Handle block at the players feet
     private void blockHandler(Block block, Player player, int chance, int randomNum, int sprintingChance,
                               int crouchingChance, List<String> switcherConfig) {
+        if (toggleManager.getMaintenanceMode()){
+            return;
+        }
         if (disabledWorlds.contains(player.getWorld().getName())) {
             return;
         }
@@ -251,32 +288,25 @@ public final class DesirePaths extends JavaPlugin implements Listener {
                 return;
             }
         }
-        if (!townyEnabled || !pathsOnlyWherePlayerCanBreak) {
-            // Run towny not enabled
-            if (!player.isSprinting() && !player.isSneaking() && randomNum < chance) {
-                blockSwitcher(block, switcherConfig, player);
+        if (griefPreventionEnabled){
+            if (!griefPreventionIntegration.checkLocation(player,player.getLocation())){
+                return;
             }
-            if (player.isSprinting() && randomNum < chance + sprintingChance) {
-                blockSwitcher(block, switcherConfig, player);
+        }
+        if (townyEnabled) {
+            if (!townyIntegration.checkLocation(player,player.getLocation())){
+                return;
             }
-            if (player.isSneaking() && randomNum < chance + crouchingChance){
-                blockSwitcher(block, switcherConfig, player);
-            }
-        } else {
-            // Run if towny is enabled and canBuild is true
-            boolean canBuild = PlayerCacheUtil.getCachePermission(player, block.getLocation(), block.getType(),
-                    TownyPermission.ActionType.DESTROY);
-            if (canBuild) {
-                if (!player.isSprinting() && !player.isSneaking() && randomNum < chance) {
-                    blockSwitcher(block, switcherConfig, player);
-                }
-                if (player.isSprinting() && randomNum < chance + sprintingChance) {
-                    blockSwitcher(block, switcherConfig, player);
-                }
-                if (player.isSneaking() && randomNum < chance + crouchingChance){
-                    blockSwitcher(block, switcherConfig, player);
-                }
-            }
+        }
+
+        if (!player.isSprinting() && !player.isSneaking() && randomNum < chance) {
+            blockSwitcher(block, switcherConfig, player);
+        }
+        if (player.isSprinting() && randomNum < chance + sprintingChance) {
+            blockSwitcher(block, switcherConfig, player);
+        }
+        if (player.isSneaking() && randomNum < chance + crouchingChance){
+            blockSwitcher(block, switcherConfig, player);
         }
     }
 
@@ -330,7 +360,11 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         blockBelowSwitcherConfig = getConfig().getStringList("blockModifications.blockBelowModifications");
         blockAtFeetSwitcherConfig = getConfig().getStringList("blockModifications.blockAtFeetModifications");
         // initial config townyModifiers booleans
-        pathsOnlyWherePlayerCanBreak = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
+        pathsOnlyWherePlayerCanBreakTowny = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
+        pathsInWildernessTowny = getConfig().getBoolean("townyModifiers.pathsInWilderness");
+        // initial config griefPreventionIntegration booleans
+        pathsOnlyWherePlayerCanBreakGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.pathsOnlyWherePlayerCanBreak");
+        pathsInWildernessGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.pathsInWilderness");
         // initial config landsIntegration settings
         displayFlag = getConfig().getBoolean("landsIntegrations.displayFlag");
         flagDisplayName = getConfig().getString("landsIntegrations.flagDisplayName");
