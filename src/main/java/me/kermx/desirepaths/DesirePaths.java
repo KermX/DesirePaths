@@ -1,7 +1,5 @@
 package me.kermx.desirepaths;
 
-import com.palmergames.bukkit.towny.object.TownyPermission;
-import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import me.kermx.desirepaths.commands.DesirePathsCommand;
 import me.kermx.desirepaths.integrations.*;
 import me.kermx.desirepaths.managers.ToggleManager;
@@ -55,6 +53,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     public boolean pathsInWildernessTowny;
     public boolean pathsOnlyWherePlayerCanBreakGriefPrevention;
     public boolean pathsInWildernessGriefPrevention;
+    public boolean noPathsInAnyClaimGriefPrevention;
     public boolean displayFlag;
     public String flagDisplayName;
     public String flagDisplayDescription;
@@ -365,6 +364,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         // initial config griefPreventionIntegration booleans
         pathsOnlyWherePlayerCanBreakGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.pathsOnlyWherePlayerCanBreak");
         pathsInWildernessGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.pathsInWilderness");
+        noPathsInAnyClaimGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.noPathsInAnyClaim");
         // initial config landsIntegration settings
         displayFlag = getConfig().getBoolean("landsIntegrations.displayFlag");
         flagDisplayName = getConfig().getString("landsIntegrations.flagDisplayName");

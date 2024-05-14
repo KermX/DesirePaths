@@ -31,8 +31,12 @@ public class GriefPreventionIntegration {
             if (playerData != null) {
                 playerData.lastClaim = claim;
             }
-            Supplier<String> noAccessReason = claim.checkPermission(player, ClaimPermission.Build, null);
-            return noAccessReason == null;
+            if (plugin.noPathsInAnyClaimGriefPrevention){
+                return false;
+            } else {
+                Supplier<String> noAccessReason = claim.checkPermission(player, ClaimPermission.Build, null);
+                return noAccessReason == null;
+            }
         } else {
             return plugin.pathsInWildernessGriefPrevention;
         }

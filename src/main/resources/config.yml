@@ -89,6 +89,8 @@ landsIntegrations:
 griefPreventionIntegration:
   pathsInWilderness: true
   pathsOnlyWherePlayerCanBreak: true
+  ## This option will overwrite "pathsOnlyWherePlayerCanBreak" meaning no paths will be created in ANY claim
+  noPathsInAnyClaim: false
 
 ## Only relevant if CoreProtect is installed
 ## Controls if paths should be logged to CoreProtect.
