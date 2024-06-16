@@ -51,6 +51,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     private List<String> blockAtFeetSwitcherConfig;
     public boolean pathsOnlyWherePlayerCanBreakTowny;
     public boolean pathsInWildernessTowny;
+    public boolean noPathsInAnyTown;
     public boolean pathsOnlyWherePlayerCanBreakGriefPrevention;
     public boolean pathsInWildernessGriefPrevention;
     public boolean noPathsInAnyClaimGriefPrevention;
@@ -277,6 +278,9 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (disabledWorlds.contains(player.getWorld().getName())) {
             return;
         }
+        if (player.getLocation().getY() % 1 != 0){
+            return;
+        }
         if (worldGuardEnabled) {
             if (worldGuardIntegration.checkFlag(player)) {
                 return;
@@ -361,6 +365,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         // initial config townyModifiers booleans
         pathsOnlyWherePlayerCanBreakTowny = getConfig().getBoolean("townyModifiers.pathsOnlyWherePlayerCanBreak");
         pathsInWildernessTowny = getConfig().getBoolean("townyModifiers.pathsInWilderness");
+        noPathsInAnyTown = getConfig().getBoolean("townyModifiers.noPathsInAnyTown");
         // initial config griefPreventionIntegration booleans
         pathsOnlyWherePlayerCanBreakGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.pathsOnlyWherePlayerCanBreak");
         pathsInWildernessGriefPrevention = getConfig().getBoolean("griefPreventionIntegration.pathsInWilderness");

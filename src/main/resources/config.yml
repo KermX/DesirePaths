@@ -73,6 +73,8 @@ blockModifications:
 townyModifiers:
   pathsInWilderness: true
   pathsOnlyWherePlayerCanBreak: true
+  ## This option will overwrite "pathsOnlyWherePlayerCanBreak" meaning no paths will be created in ANY town
+  noPathsInAnyTown: false
 
 ## Only relevant if Lands is installed
 ## Controls settings for the DESIRE_PATHS flag

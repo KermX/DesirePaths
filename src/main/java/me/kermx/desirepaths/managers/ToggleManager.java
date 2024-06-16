@@ -52,10 +52,18 @@ public class ToggleManager {
     }
 
     private void loadTogglesFromConfig() {
-        for (String playerIdString : toggleDataConfig.getKeys(false)) {
-            UUID playerId = UUID.fromString(playerIdString);
-            boolean toggleState = toggleDataConfig.getBoolean(playerIdString);
-            toggleMap.put(playerId, toggleState);
+        for (String key : toggleDataConfig.getKeys(false)) {
+            // Skip the "maintenanceMode" key
+            if (key.equals("maintenanceMode")) {
+                continue;
+            }
+            try {
+                UUID playerId = UUID.fromString(key);
+                boolean toggleState = toggleDataConfig.getBoolean(key);
+                toggleMap.put(playerId, toggleState);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Skipping invalid UUID string: " + key);
+            }
         }
     }
 

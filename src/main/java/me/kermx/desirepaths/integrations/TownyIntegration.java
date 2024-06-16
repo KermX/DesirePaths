@@ -17,12 +17,23 @@ public class TownyIntegration {
 
     public boolean checkLocation(Player player, Location location){
         if (TownyAPI.getInstance().isTownyWorld(location.getWorld())){
+
             if (TownyAPI.getInstance().isWilderness(location)){
                 return plugin.pathsInWildernessTowny;
+
             } else {
-                Block block = location.getBlock();
-                return PlayerCacheUtil.getCachePermission(player, location, block.getType(),
-                        TownyPermission.ActionType.DESTROY);
+
+                if (plugin.noPathsInAnyTown){
+                    return false;
+                }
+
+                if (plugin.pathsOnlyWherePlayerCanBreakTowny) {
+                    Block block = location.getBlock();
+                    return PlayerCacheUtil.getCachePermission(player, location, block.getType(),
+                            TownyPermission.ActionType.DESTROY);
+                } else {
+                    return true;
+                }
             }
         } else {
             return true;
