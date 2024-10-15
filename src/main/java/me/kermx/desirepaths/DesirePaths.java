@@ -281,6 +281,10 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (player.getLocation().getY() % 1 != 0){
             return;
         }
+        Block blockAbove = block.getRelative(BlockFace.UP);
+        if (blockAbove.getType() == Material.RAIL || blockAbove.getType() == Material.POWERED_RAIL || blockAbove.getType() == Material.ACTIVATOR_RAIL || blockAbove.getType() == Material.DETECTOR_RAIL) {
+            return;
+        }
         if (worldGuardEnabled) {
             if (worldGuardIntegration.checkFlag(player)) {
                 return;
