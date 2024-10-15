@@ -1,6 +1,6 @@
 package me.kermx.desirepaths;
 
-import me.kermx.desirepaths.commands.DesirePathsCommand;
+import me.kermx.desirepaths.commands.DesirePathsCommandLegacy;
 import me.kermx.desirepaths.integrations.*;
 import me.kermx.desirepaths.managers.ToggleManager;
 import org.bukkit.Bukkit;
@@ -82,7 +82,7 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     public boolean coreProtectEnabled;
 
     private ToggleManager toggleManager;
-    DesirePathsCommand desirePathsCommand = new DesirePathsCommand(this);
+    DesirePathsCommandLegacy desirePathsCommandLegacy = new DesirePathsCommandLegacy(this);
 
     @Override
     public void onLoad() {
@@ -138,8 +138,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     public void onEnable() {
 
         // initialize reload & toggle command
-        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(desirePathsCommand);
-        Objects.requireNonNull(getCommand("desirepaths")).setTabCompleter(desirePathsCommand);
+        Objects.requireNonNull(getCommand("desirepaths")).setExecutor(desirePathsCommandLegacy);
+        Objects.requireNonNull(getCommand("desirepaths")).setTabCompleter(desirePathsCommandLegacy);
 
         // initialize togglemanager
         toggleManager = new ToggleManager(this);
