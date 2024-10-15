@@ -34,8 +34,7 @@ public abstract class DesirePathsSubManager implements TabExecutor {
      * @param label The command as a string
      * @return      The wrapper. Null if none
      */
-    @Nullable
-    protected SubCommandWrapper getWrapperFromLable(String label) {
+    protected SubCommandWrapper getWrapper(String label) {
         for (SubCommandWrapper wrapper : subCommands) {
             for (String alias : wrapper.aliases) {
                 if (alias.equalsIgnoreCase(label)) {

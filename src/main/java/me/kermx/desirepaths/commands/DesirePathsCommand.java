@@ -1,5 +1,6 @@
 package me.kermx.desirepaths.commands;
 
+import me.kermx.desirepaths.DesirePaths;
 import me.kermx.desirepaths.commands.subcommands.MaintenanceCommand;
 import me.kermx.desirepaths.commands.subcommands.ReloadCommand;
 import me.kermx.desirepaths.commands.subcommands.ToggleCommand;
@@ -15,10 +16,10 @@ public class DesirePathsCommand extends DesirePathsSubManager {
     /**
      * Calling this constructor we register all sub commands.
      */
-    public DesirePathsCommand() {
-        addSubCommand(new MaintenanceCommand(), new String[] {"maintenance"}, new Permission("desirepaths.maintenance"));
-        addSubCommand(new ReloadCommand(), new String[] {"reload"}, new Permission("desirepaths.reload"));
-        addSubCommand(new ToggleCommand(), new String[] {"toggle"}, new Permission("desirepaths.toggle"));
+    public DesirePathsCommand(DesirePaths plugin) {
+        addSubCommand(new MaintenanceCommand(plugin), new String[] {"maintenance"}, new Permission("desirepaths.maintenance"));
+        addSubCommand(new ReloadCommand(plugin), new String[] {"reload"}, new Permission("desirepaths.reload"));
+        addSubCommand(new ToggleCommand(plugin), new String[] {"toggle"}, new Permission("desirepaths.toggle"));
     }
 
     /**
@@ -33,7 +34,7 @@ public class DesirePathsCommand extends DesirePathsSubManager {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) { // We handle the sub command, so that's why it is 1.
-            final SubCommandWrapper wrapper = getWrapperFromLable(label);
+            final SubCommandWrapper wrapper = getWrapper(args[0]);
 
             if (wrapper != null) {
                 if (sender.hasPermission(wrapper.getPermission())) {
@@ -52,7 +53,7 @@ public class DesirePathsCommand extends DesirePathsSubManager {
             return getFirstAliases(sender); // If this is 1st argument, returns list of avaliable sub commands
         }
 
-        final SubCommandWrapper wrapper = getWrapperFromLable(label);
+        final SubCommandWrapper wrapper = getWrapper(args[0]);
 
         if (wrapper != null) { // If this is 2nd argument and it actually exists, returns list of args for this sub command
             return wrapper.getSubCommand().onTabComplete(sender, args);
