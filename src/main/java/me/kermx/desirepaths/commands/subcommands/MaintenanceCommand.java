@@ -1,4 +1,18 @@
 package me.kermx.desirepaths.commands.subcommands;
 
-public class MaintenanceCommand {
+import me.kermx.desirepaths.commands.DesirePathsSub;
+import org.bukkit.command.CommandSender;
+
+import java.util.List;
+
+public class MaintenanceCommand implements DesirePathsSub {
+    @Override
+    public boolean onCommand(CommandSender sender, String[] args) {
+        return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, String[] args) {
+        return List.of();
+    }
 }
