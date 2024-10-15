@@ -1,7 +1,10 @@
 package me.kermx.desirepaths.commands;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.permissions.Permission;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +14,7 @@ import java.util.List;
  * managing features over them such as getting
  * needed values, registering new subCommands, etc.
  */
-public abstract class DesirePathsSubManager {
+public abstract class DesirePathsSubManager implements TabExecutor {
     private final List<SubCommandWrapper> subCommands = new ArrayList<>();
 
     /**
@@ -23,6 +26,43 @@ public abstract class DesirePathsSubManager {
      */
     protected void addSubCommand(DesirePathsSub subCommand, String[] aliases, Permission permission) {
         subCommands.add(new SubCommandWrapper(subCommand, aliases, permission));
+    }
+
+    /**
+     * Returns the needed wrapper to handle on command enter.
+     *
+     * @param label The command as a string
+     * @return      The wrapper. Null if none
+     */
+    @Nullable
+    protected SubCommandWrapper getWrapperFromLable(String label) {
+        for (SubCommandWrapper wrapper : subCommands) {
+            for (String alias : wrapper.aliases) {
+                if (alias.equalsIgnoreCase(label)) {
+                    return wrapper;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns aliases for the first argument, aka sub commands.
+     * Additionally, checks for the permission before returning.
+     * You can add more checks here in the future.
+     *
+     * @param sender The sender
+     * @return The list of first aliases (sub commands)
+     */
+    protected List<String> getFirstAliases(CommandSender sender) {
+        final List<String> result = new ArrayList<>();
+        for (SubCommandWrapper wrapper : subCommands) {
+            if (sender.hasPermission(wrapper.getPermission())) {
+                String alias = wrapper.aliases[0];
+                result.add(alias);
+            }
+        }
+        return result;
     }
 
     /**

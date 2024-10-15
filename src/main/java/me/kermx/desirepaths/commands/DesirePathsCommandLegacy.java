@@ -33,6 +33,8 @@ public class DesirePathsCommandLegacy implements CommandExecutor, TabCompleter {
                     return true;
                 }
             }
+
+
             if (args.length == 1 && args[0].equalsIgnoreCase("toggle")) {
                 if (!(sender instanceof Player)) {
                     sender.sendMessage(ChatColor.RED + "Only players can run this command!");
@@ -47,6 +49,7 @@ public class DesirePathsCommandLegacy implements CommandExecutor, TabCompleter {
                     return true;
                 }
             }
+
             // Handle console command to toggle players by name
             if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
                 if (!(sender instanceof Player)) {

@@ -8,7 +8,8 @@ import java.util.List;
 public class ToggleCommand implements DesirePathsSub {
     @Override
     public boolean onCommand(CommandSender sender, String[] args) {
-        return false;
+
+        return true;
     }
 
     @Override
