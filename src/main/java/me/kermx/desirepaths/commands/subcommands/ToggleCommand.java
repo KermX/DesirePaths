@@ -53,6 +53,8 @@ public class ToggleCommand implements DesirePathsSub {
             } else {
                 sender.sendMessage(ChatColor.GREEN + "Unable to find online player with name: " + playerName);
             }
+        } else {
+            sender.sendMessage(ChatColor.GREEN + "Use /desirepaths toggle [player] instead");
         }
     }
 
