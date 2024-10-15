@@ -8,23 +8,21 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public class ReloadCommand implements DesirePathsSub {
-
     private final DesirePaths plugin;
 
-    public ReloadCommand(DesirePaths plugin) {
+    public ReloadCommand(final DesirePaths plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, String[] args) {
+    public void onCommand(final CommandSender sender, final String[] args) {
         plugin.reloadConfig();
         plugin.loadConfig();
         sender.sendMessage(ChatColor.GREEN + "DesirePaths configuration reloaded!");
-        return true;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args) {
+    public List<String> onTabComplete(final CommandSender sender, final String[] args) {
         return List.of();
     }
 }

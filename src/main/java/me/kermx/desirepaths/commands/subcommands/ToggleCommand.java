@@ -12,54 +12,65 @@ import java.util.List;
 import java.util.UUID;
 
 public class ToggleCommand implements DesirePathsSub {
-
     private final DesirePaths plugin;
 
-    public ToggleCommand(DesirePaths plugin) {
+    public ToggleCommand(final DesirePaths plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, String[] args) {
-        if (args.length == 1) {
-            if (sender instanceof Player) {
-                togglePlayer(sender);
-            } else {
-                toggleConsole(sender, args);
-            }
+    public void onCommand(final CommandSender sender, final String[] args) {
+        if (sender instanceof Player) {
+            togglePlayer(sender);
+        } else {
+            toggleConsole(sender, args);
         }
-        return true;
     }
 
-    private void togglePlayer(CommandSender sender) {
-        Player player = (Player) sender;
-        boolean newToggle = plugin.getToggleManager().toggle(player.getUniqueId());
+    /**
+     * To process if the sender is player
+     *
+     * @param sender The player
+     */
+    private void togglePlayer(final CommandSender sender) {
+        final Player player = (Player) sender;
+        final UUID playerId = player.getUniqueId();
 
-        String toggleStatus = newToggle ? "on" : "off";
+        final boolean newToggle = plugin.getToggleManager().toggle(playerId);
+        final String toggleStatus = newToggle ? "on" : "off";
+
+        player.sendMessage("IsToggleMode? " + toggleStatus);
         player.sendMessage(ChatColor.GREEN + "DesirePaths toggled " + toggleStatus + "!");
      }
 
-    private void toggleConsole(CommandSender sender, String[] args) {
-        if (args.length == 2) {
-            String playerName = args[1];
-            Player player = Bukkit.getPlayer(playerName);
+    /**
+     * To process if the sender is console
+     *
+     * @param sender The console
+     * @param args   Arguments for the sub command (we expect player)
+     */
+    private void toggleConsole(final CommandSender sender, final String[] args) {
+        if (args.length >= 2) {
+            final String playerName = args[1];
+            final Player player = Bukkit.getPlayer(playerName);
 
             if (player != null) {
-                UUID playerId = player.getUniqueId();
-                boolean newToggle = plugin.getToggleManager().toggle(playerId);
+                final UUID playerId = player.getUniqueId();
 
-                String toggleStatus = newToggle ? "on" : "off";
+                final boolean newToggle = plugin.getToggleManager().toggle(playerId);
+                final String toggleStatus = newToggle ? "on" : "off";
+
                 sender.sendMessage(ChatColor.GREEN + "DesirePaths toggled " + toggleStatus + "!");
             } else {
                 sender.sendMessage(ChatColor.GREEN + "Unable to find online player with name: " + playerName);
             }
         } else {
-            sender.sendMessage(ChatColor.GREEN + "Use /desirepaths toggle [player] instead");
+            sender.sendMessage(ChatColor.GREEN + "Usage: /desirepaths toggle [player]");
         }
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args) {
+    public List<String> onTabComplete(final CommandSender sender, final String[] args) {
         if (sender instanceof Player) {
             return List.of();
         } else {
@@ -67,10 +78,16 @@ public class ToggleCommand implements DesirePathsSub {
         }
     }
 
+    /**
+     * If the tab complete event is coming from console,
+     * we return players list.
+     *
+     * @return List of players
+     */
     private List<String> toggleTabConsole() {
-        List<String> onlinePlayers = new ArrayList<>();
+        final List<String> onlinePlayers = new ArrayList<>();
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (final Player player : Bukkit.getOnlinePlayers()) {
             onlinePlayers.add(player.getName());
         }
 

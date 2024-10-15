@@ -5,6 +5,6 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public interface DesirePathsSub {
-    boolean onCommand(CommandSender sender, String[] args);
+    void onCommand(CommandSender sender, String[] args);
     List<String> onTabComplete(CommandSender sender, String[] args);
 }

@@ -8,24 +8,24 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public class MaintenanceCommand implements DesirePathsSub {
-
     private final DesirePaths plugin;
 
-    public MaintenanceCommand(DesirePaths plugin) {
+    public MaintenanceCommand(final DesirePaths plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, String[] args) {
-        boolean maintenanceMode = plugin.getToggleManager().getMaintenanceMode();
+    public void onCommand(final CommandSender sender, final String[] args) {
+        final boolean maintenanceMode = plugin.getToggleManager().getMaintenanceMode();
+
         plugin.getToggleManager().setMaintenanceMode(!maintenanceMode);
-        String maintenanceStatus = maintenanceMode ? "off" : "on";
+        final String maintenanceStatus = maintenanceMode ? "off" : "on";
+
         sender.sendMessage(ChatColor.GREEN + "Maintenance mode toggled " + maintenanceStatus + "!");
-        return true;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, String[] args) {
+    public List<String> onTabComplete(final CommandSender sender, final String[] args) {
         return List.of();
     }
 }
