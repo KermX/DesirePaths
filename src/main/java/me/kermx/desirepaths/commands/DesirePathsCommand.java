@@ -11,11 +11,21 @@ import org.bukkit.permissions.Permission;
 
 import java.util.List;
 
+/**
+* This class represents the Main, Primary command.
+* Here we register sub commands and process the
+* arguments of the main command based on user's
+* entered information.
+*/
 public class DesirePathsCommand extends DesirePathsSubManager {
 
     /**
-     * Calling this constructor we register all sub commands. Modify it as you wish,
-     * but do not forget to register the sub commands, at the end of day.
+     * Calling this constructor we register all sub commands.
+     *
+     * addSubCommand(
+     * new SubCommand class,
+     * new String[] {"aliases"},
+     * new Permission("permission"));
      */
     public DesirePathsCommand(final DesirePaths plugin) {
         addSubCommand(
@@ -33,7 +43,7 @@ public class DesirePathsCommand extends DesirePathsSubManager {
     }
 
     /**
-     * On entered command, we process it if it is one of our sub commands here.
+     * On entered command, we process it if it's one of our sub commands.
      *
      * @param sender    Sender
      * @param command   Command
@@ -50,13 +60,22 @@ public class DesirePathsCommand extends DesirePathsSubManager {
                 if (sender.hasPermission(wrapper.getPermission())) {
                     wrapper.getSubCommand().onCommand(sender, args);
                     return true;
-                } // Here you can add a message if no permissions found via else
+                } // Here you can add a message if no permissions found via else. Or you can put it in the getWrapper method.
             }
         }
         sender.sendMessage(ChatColor.RED + "Incorrect Usage! Try: /desirepaths <reload|toggle> [player]");
         return true; // We do not need to return false as we handled the command properly here
     }
 
+    /**
+     * On tab complete, we process it if it's our command.
+     *
+     * @param sender    Sender
+     * @param command   Command
+     * @param label     Command as a string
+     * @param args      Arguments of the command
+     * @return          Was the process completed as intended
+     */
     @Override
     public List<String> onTabComplete(final CommandSender sender, final Command command, final String label, final String[] args) {
         if (args.length == 1) {
