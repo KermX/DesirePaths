@@ -80,22 +80,29 @@ public abstract class DesirePathsSubManager implements TabExecutor {
          * @param aliases     The aliases of the command
          * @param permission  The permission for the command
          */
-        protected SubCommandWrapper(DesirePathsSub subCommand, String[] aliases, Permission permission) {
+        protected SubCommandWrapper(final DesirePathsSub subCommand, final String[] aliases, final Permission permission) {
             this.subCommand = subCommand;
             this.aliases = aliases;
             this.permission = permission;
         }
 
-        // Getters- used to get the sub command wrapper values.
-
+        /**
+        * Returns the sub command class.
+        */
         protected DesirePathsSub getSubCommand() {
             return subCommand;
         }
 
+        /**
+        * Returns the aliases of the sub command.
+        */
         protected String[] getAliases() {
             return aliases;
         }
 
+        /**
+        * Returns the permission for the sub command.
+        */
         protected Permission getPermission() {
             return permission;
         }
