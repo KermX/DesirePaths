@@ -11,13 +11,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+* A class for Toggle sub command.
+*/
 public class ToggleCommand implements DesirePathsSub {
     private final DesirePaths plugin;
 
+    /**
+    * Constructs this class on initialization.
+    */
     public ToggleCommand(final DesirePaths plugin) {
         this.plugin = plugin;
     }
 
+    /**
+    * If the method was triggered, we process it.
+    * Based on who is the sender we either handle
+    * player or console method.
+    *
+    * @param sender The sender (unknown type yet)
+    * @param args   Args of the command. Remember that the 1st argument is our sub command
+    */
     @Override
     public void onCommand(final CommandSender sender, final String[] args) {
         if (sender instanceof Player) {
@@ -28,7 +42,7 @@ public class ToggleCommand implements DesirePathsSub {
     }
 
     /**
-     * To process if the sender is player
+     * To process if the sender is player.
      *
      * @param sender The player
      */
@@ -44,10 +58,10 @@ public class ToggleCommand implements DesirePathsSub {
      }
 
     /**
-     * To process if the sender is console
+     * To process if the sender is console.
      *
      * @param sender The console
-     * @param args   Arguments for the sub command (we expect player)
+     * @param args   Args of the command. Remember that the 1st argument is our sub command
      */
     private void toggleConsole(final CommandSender sender, final String[] args) {
         if (args.length >= 2) {
@@ -69,6 +83,14 @@ public class ToggleCommand implements DesirePathsSub {
         }
     }
 
+    /**
+    * When tab complete is triggered and it's triggered by console,
+    * we return list of players.
+    *
+    * @param sender The sender (unknown yet)
+    * @param args   Args of the command. Remember that the 1st argument is our sub command
+    * @return List of players
+    */
     @Override
     public List<String> onTabComplete(final CommandSender sender, final String[] args) {
         if (sender instanceof Player) {
