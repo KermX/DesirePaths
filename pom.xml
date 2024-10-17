@@ -6,7 +6,7 @@
 
     <groupId>me.kermx</groupId>
     <artifactId>DesirePaths</artifactId>
-    <version>1.11</version>
+    <version>1.12</version>
     <packaging>jar</packaging>
 
     <name>DesirePaths</name>
