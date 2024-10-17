@@ -272,38 +272,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
     // Handle block at the players feet
     private void blockHandler(Block block, Player player, int chance, int randomNum, int sprintingChance,
                               int crouchingChance, List<String> switcherConfig) {
-        if (toggleManager.getMaintenanceMode()){
+        if (!canModifyBlock(player,block)){
             return;
-        }
-        if (disabledWorlds.contains(player.getWorld().getName())) {
-            return;
-        }
-        if (player.getLocation().getY() % 1 != 0){
-            return;
-        }
-        Block blockAbove = block.getRelative(BlockFace.UP);
-        if (blockAbove.getType() == Material.RAIL || blockAbove.getType() == Material.POWERED_RAIL || blockAbove.getType() == Material.ACTIVATOR_RAIL || blockAbove.getType() == Material.DETECTOR_RAIL) {
-            return;
-        }
-        if (worldGuardEnabled) {
-            if (worldGuardIntegration.checkFlag(player)) {
-                return;
-            }
-        }
-        if (landsEnabled) {
-            if (landsPathIntegration.checkFlag(player)){
-                return;
-            }
-        }
-        if (griefPreventionEnabled){
-            if (!griefPreventionIntegration.checkLocation(player,player.getLocation())){
-                return;
-            }
-        }
-        if (townyEnabled) {
-            if (!townyIntegration.checkLocation(player,player.getLocation())){
-                return;
-            }
         }
 
         if (!player.isSprinting() && !player.isSneaking() && randomNum < chance) {
@@ -315,6 +285,31 @@ public final class DesirePaths extends JavaPlugin implements Listener {
         if (player.isSneaking() && randomNum < chance + crouchingChance){
             blockSwitcher(block, switcherConfig, player);
         }
+    }
+
+    private boolean canModifyBlock(Player player, Block block) {
+        if (toggleManager.getMaintenanceMode() ||
+                disabledWorlds.contains(player.getWorld().getName()) ||
+                player.getLocation().getY() % 1 != 0) {
+            return false;
+        }
+        Block blockAbove = block.getRelative(BlockFace.UP);
+        if (blockAbove.getType() == Material.RAIL || blockAbove.getType() == Material.POWERED_RAIL || blockAbove.getType() == Material.ACTIVATOR_RAIL || blockAbove.getType() == Material.DETECTOR_RAIL) {
+            return false;
+        }
+        if (worldGuardEnabled && worldGuardIntegration.checkFlag(player)) {
+            return false;
+        }
+        if (landsEnabled && landsPathIntegration.checkFlag(player)) {
+            return false;
+        }
+        if (griefPreventionEnabled && !griefPreventionIntegration.checkLocation(player, block.getLocation())) {
+            return false;
+        }
+        if (townyEnabled && !townyIntegration.checkLocation(player, block.getLocation())) {
+            return false;
+        }
+        return true;
     }
 
     private void blockSwitcher(Block block, List<String> switcherConfig, Player player) {
@@ -392,6 +387,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+
+        Bukkit.getScheduler().cancelTasks(this);
         Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + ">>" + ChatColor.RED + " DesirePaths Disabled");
     }
 }

@@ -49,7 +49,7 @@ public class DesirePathsCommand implements CommandExecutor, TabCompleter {
             }
             // Handle console command to toggle players by name
             if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
-                if (!(sender instanceof Player)) {
+                if (sender.hasPermission("desirepaths.toggle.others")) {
                     String playerName = args[1];
                     Player togglePlayer = Bukkit.getPlayer(playerName);
                     if (togglePlayer != null) {
@@ -62,6 +62,8 @@ public class DesirePathsCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage(ChatColor.GREEN + "Unable to find online player with name: " + playerName);
                     }
                     return true;
+                } else {
+                    sender.sendMessage(ChatColor.RED + "You don't have permission to toggle other players.");
                 }
             }
             // Handle maintenance command to toggle paths for all players
