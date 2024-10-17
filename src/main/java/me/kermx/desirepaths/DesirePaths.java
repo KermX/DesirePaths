@@ -200,8 +200,8 @@ public final class DesirePaths extends JavaPlugin implements Listener {
 
         coreProtectEnabled = Bukkit.getPluginManager().isPluginEnabled("CoreProtect");
         if (coreProtectEnabled && coreProtectIntegration.getAPI() != null){
-                Bukkit.getConsoleSender()
-                        .sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-CoreProtect integration successful");
+            Bukkit.getConsoleSender()
+                    .sendMessage(ChatColor.GOLD + ">>" + ChatColor.GREEN + " DesirePaths-CoreProtect integration successful");
         }
     }
 
@@ -224,19 +224,19 @@ public final class DesirePaths extends JavaPlugin implements Listener {
                         randomNum, sprintingBlockBelowChance, crouchingBlockBelowChance, blockBelowSwitcherConfig));
         Bukkit.getScheduler().runTask(this,
                 () -> blockHandler(player.getLocation().getBlock(), player, chance,
-                randomNum, sprintingBlockAtFeetChance, crouchingBlockAtFeetChance, blockAtFeetSwitcherConfig));
+                        randomNum, sprintingBlockAtFeetChance, crouchingBlockAtFeetChance, blockAtFeetSwitcherConfig));
     }
 
     public static int getChance(Player player, int noBootsChance, int leatherBootsChance, int hasBootsChance,
-            int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance) {
+                                int featherFallingChance, int ridingHorseChance, int ridingBoatChance, int ridingPigChance) {
         return switch (getModifier(player)) {
-        case RIDING_HORSE -> ridingHorseChance;
-        case RIDING_BOAT -> ridingBoatChance;
-        case RIDING_PIG -> ridingPigChance;
-        case FEATHER_FALLING -> featherFallingChance;
-        case HAS_BOOTS -> hasBootsChance;
-        case LEATHER_BOOTS -> leatherBootsChance;
-        case NO_BOOTS -> noBootsChance;
+            case RIDING_HORSE -> ridingHorseChance;
+            case RIDING_BOAT -> ridingBoatChance;
+            case RIDING_PIG -> ridingPigChance;
+            case FEATHER_FALLING -> featherFallingChance;
+            case HAS_BOOTS -> hasBootsChance;
+            case LEATHER_BOOTS -> leatherBootsChance;
+            case NO_BOOTS -> noBootsChance;
         };
     }
 

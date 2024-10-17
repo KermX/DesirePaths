@@ -1,111 +1,93 @@
 package me.kermx.desirepaths.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import org.bukkit.Bukkit;
+import me.kermx.desirepaths.DesirePaths;
+import me.kermx.desirepaths.commands.subcommands.MaintenanceCommand;
+import me.kermx.desirepaths.commands.subcommands.ReloadCommand;
+import me.kermx.desirepaths.commands.subcommands.ToggleCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 
-import me.kermx.desirepaths.DesirePaths;
+import java.util.List;
 
-public class DesirePathsCommand implements CommandExecutor, TabCompleter {
+/**
+* This class represents the Main, Primary command.
+* Here we register sub commands and process the
+* arguments of the main command based on user's
+* entered information.
+*/
+public class DesirePathsCommand extends DesirePathsSubManager {
 
-    private final DesirePaths plugin;
-
-    public DesirePathsCommand(DesirePaths plugin) {
-        this.plugin = plugin;
+    /**
+     * Calling this constructor we register all sub commands.
+     *
+     * addSubCommand(
+     * new SubCommand class,
+     * new String[] {"aliases"},
+     * new Permission("permission"));
+     */
+    public DesirePathsCommand(final DesirePaths plugin) {
+        addSubCommand(
+                new MaintenanceCommand(plugin),
+                new String[] {"maintenance"},
+                new Permission("desirepaths.maintenance"));
+        addSubCommand(
+                new ReloadCommand(plugin),
+                new String[] {"reload"},
+                new Permission("desirepaths.reload"));
+        addSubCommand(
+                new ToggleCommand(plugin),
+                new String[] {"toggle"},
+                new Permission("desirepaths.toggle"));
     }
 
+    /**
+     * On entered command, we process it if it's one of our sub commands.
+     *
+     * @param sender    Sender
+     * @param command   Command
+     * @param label     Command as a string
+     * @param args      Arguments of the command
+     * @return          Was the process completed as intended
+     */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("desirepaths")) {
-            if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                if (sender.hasPermission("desirepaths.reload")) {
-                    plugin.reloadConfig();
-                    plugin.loadConfig();
-                    sender.sendMessage(ChatColor.GREEN + "DesirePaths configuration reloaded!");
-                    return true;
-                }
-            }
-            if (args.length == 1 && args[0].equalsIgnoreCase("toggle")) {
-                if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "Only players can run this command!");
-                    return true;
-                }
-                if (sender.hasPermission("desirepaths.toggle")) {
-                    Player player = (Player) sender;
-                    boolean newToggle = plugin.getToggleManager().toggle(player.getUniqueId());
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+        if (args.length >= 1) {
+            final SubCommandWrapper wrapper = getWrapper(args[0]);
 
-                    String toggleStatus = newToggle ? "on" : "off";
-                    player.sendMessage(ChatColor.GREEN + "DesirePaths toggled " + toggleStatus + "!");
+            if (wrapper != null) {
+                if (sender.hasPermission(wrapper.getPermission())) {
+                    wrapper.getSubCommand().onCommand(sender, args);
                     return true;
-                }
-            }
-            // Handle console command to toggle players by name
-            if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
-                if (sender.hasPermission("desirepaths.toggle.others")) {
-                    String playerName = args[1];
-                    Player togglePlayer = Bukkit.getPlayer(playerName);
-                    if (togglePlayer != null) {
-                        UUID playerId = togglePlayer.getUniqueId();
-                        boolean newToggle = plugin.getToggleManager().toggle(playerId);
-
-                        String toggleStatus = newToggle ? "on" : "off";
-                        sender.sendMessage(ChatColor.GREEN + "DesirePaths toggled " + toggleStatus + "!");
-                    } else {
-                        sender.sendMessage(ChatColor.GREEN + "Unable to find online player with name: " + playerName);
-                    }
-                    return true;
-                } else {
-                    sender.sendMessage(ChatColor.RED + "You don't have permission to toggle other players.");
-                }
-            }
-            // Handle maintenance command to toggle paths for all players
-            if (args.length == 1 && args[0].equalsIgnoreCase("maintenance")){
-                if (sender.hasPermission("desirepaths.maintenance")){
-                    boolean maintenanceMode = plugin.getToggleManager().getMaintenanceMode();
-                    plugin.getToggleManager().setMaintenanceMode(!maintenanceMode);
-                    String maintenanceStatus = maintenanceMode ? "off" : "on";
-                    sender.sendMessage(ChatColor.GREEN + "Maintenance mode toggled " + maintenanceStatus + "!");
-                    return true;
-                }
+                } // Here you can add a message if no permissions found via else. Or you can put it in the getWrapper method.
             }
         }
         sender.sendMessage(ChatColor.RED + "Incorrect Usage! Try: /desirepaths <reload|toggle> [player]");
-        return false;
+        return true; // We do not need to return false as we handled the command properly here
     }
 
+    /**
+     * On tab complete, we process it if it's our command.
+     *
+     * @param sender    Sender
+     * @param command   Command
+     * @param label     Command as a string
+     * @param args      Arguments of the command
+     * @return          Was the process completed as intended
+     */
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-
-        if (cmd.getName().equalsIgnoreCase("desirepaths")) {
-            if (args.length == 1) {
-                // Autocomplete for the first argument if the sender has permission
-                if (sender.hasPermission("desirepaths.reload")) {
-                    completions.add("reload");
-                }
-                if (sender.hasPermission("desirepaths.toggle")) {
-                    completions.add("toggle");
-                }
-                if (sender.hasPermission("desirepaths.maintenance")){
-                    completions.add("maintenance");
-                }
-            } else if (args.length == 2 && args[0].equalsIgnoreCase("toggle")) {
-                // Autocomplete second argument when the first argument is "toggle"
-                if (sender.hasPermission("desirepaths.toggle")) {
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        completions.add(onlinePlayer.getName());
-                    }
-                }
-            }
+    public List<String> onTabComplete(final CommandSender sender, final Command command, final String label, final String[] args) {
+        if (args.length == 1) {
+            return getFirstAliases(sender); // If first argument, returns the list of aliases of sub commands
         }
-        return completions;
+
+        final SubCommandWrapper wrapper = getWrapper(args[0]);
+
+        if (wrapper != null) { // If second argument, returns tab list of the specific sub command wrapper
+            return wrapper.getSubCommand().onTabComplete(sender, args);
+        }
+
+        return List.of(); // If not our command - return
     }
 }
