@@ -8,6 +8,7 @@ softdepend:
   - WorldGuard
   - Lands
   - GriefPrevention
+  - HuskTowns
   - CoreProtect
 commands:
   desirepaths:

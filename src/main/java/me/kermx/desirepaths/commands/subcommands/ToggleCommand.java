@@ -34,10 +34,12 @@ public class ToggleCommand implements DesirePathsSub {
     */
     @Override
     public void onCommand(final CommandSender sender, final String[] args) {
-        if (sender instanceof Player) {
-            togglePlayer(sender);
+        if (args.length <= 1) {
+            toggle(sender);
+        } else if (sender.hasPermission("desirepaths.toggle.others")) {
+            toggleOther(sender, args);
         } else {
-            toggleConsole(sender, args);
+            sender.sendMessage(ChatColor.RED + "You don't have permission to toggle other players.");
         }
     }
 
@@ -46,7 +48,7 @@ public class ToggleCommand implements DesirePathsSub {
      *
      * @param sender The player
      */
-    private void togglePlayer(final CommandSender sender) {
+    private void toggle(final CommandSender sender) {
         final Player player = (Player) sender;
         final UUID playerId = player.getUniqueId();
 
@@ -63,7 +65,7 @@ public class ToggleCommand implements DesirePathsSub {
      * @param sender The console
      * @param args   Args of the command. Remember that the 1st argument is our sub command
      */
-    private void toggleConsole(final CommandSender sender, final String[] args) {
+    private void toggleOther(final CommandSender sender, final String[] args) {
         if (args.length >= 2) {
             final String playerName = args[1];
             final Player player = Bukkit.getPlayer(playerName);
@@ -93,10 +95,10 @@ public class ToggleCommand implements DesirePathsSub {
     */
     @Override
     public List<String> onTabComplete(final CommandSender sender, final String[] args) {
-        if (sender instanceof Player) {
+        if (!sender.hasPermission("desirepaths.toggle.others")) {
             return List.of();
         } else {
-            return toggleTabConsole();
+            return playerList();
         }
     }
 
@@ -106,7 +108,7 @@ public class ToggleCommand implements DesirePathsSub {
      *
      * @return List of players
      */
-    private List<String> toggleTabConsole() {
+    private List<String> playerList() {
         final List<String> onlinePlayers = new ArrayList<>();
 
         for (final Player player : Bukkit.getOnlinePlayers()) {
